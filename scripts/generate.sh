@@ -39,13 +39,13 @@ generate_values_config() {
       ((($v.longDescription // "") + " " + ($v.example // "") + " " + ($v.description // ""))
         | test("space-delimited|semicolon-delimited|comma-delimited|comma-separated"; "i")) as $is_delimited |
       (if $is_delimited then " []" else "" end) as $suffix |
-      "      ## \($v.description)\n      ## Maps to: WS_\($group | ascii_upcase)_\($prop | ascii_upcase)\n      # \($prop):\($suffix)\n")
+      "      # -- \($v.description)\n      # Maps to: WS_\($group | ascii_upcase)_\($prop | ascii_upcase)\n      # \($prop):\($suffix)\n")
   ' >> "$tmp_config"
 
   # Splice into values.yaml between markers
   local before after
-  before=$(sed -n '1,/## @generated:begin/p' "$values_file")
-  after=$(sed -n '/## @generated:end/,$p' "$values_file")
+  before=$(sed -n '1,/# @generated:begin/p' "$values_file")
+  after=$(sed -n '/# @generated:end/,$p' "$values_file")
 
   {
     echo "$before"
@@ -53,8 +53,6 @@ generate_values_config() {
     echo ""
     echo "$after"
   } > "$values_file"
-
-  rm -f "$tmp_config"
 }
 
 ###############################################################################
@@ -103,6 +101,28 @@ generate_schema() {
         "workspace": {
           "type": "object",
           "properties": {
+            "owner": {
+              "description": "Owner of this workspace (applied as ws.kloudkit.com/owner global label).",
+              "type": ["string", "null"]
+            },
+            "project": {
+              "description": "Project this workspace belongs to (applied as ws.kloudkit.com/project global label).",
+              "type": ["string", "null"]
+            },
+            "labels": {
+              "description": "Additional labels applied to all chart resources.",
+              "type": ["object", "null"],
+              "additionalProperties": { "type": "string" }
+            },
+            "annotations": {
+              "description": "Additional annotations applied to all chart resources.",
+              "type": ["object", "null"],
+              "additionalProperties": { "type": "string" }
+            },
+            "timezone": {
+              "description": "IANA timezone for the workspace (sets the TZ environment variable).",
+              "type": ["string", "null"]
+            },
             "image": { "type": "object" },
             "hostname": { "type": ["string", "null"] },
             "metrics": {
@@ -173,7 +193,7 @@ HEADER
 -}}
 {{- range $vars }}
 {{- $val := dig .g .k nil $config }}
-{{- if not (eq (toString $val) "<nil>") }}
+{{- if not (kindIs "invalid" $val) }}
 - name: WS_{{ .g | upper }}_{{ .k | upper }}
 {{- if kindIs "map" $val }}
   valueFrom: {{- $val.valueFrom | toYaml | nindent 4 }}

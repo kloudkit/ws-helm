@@ -1,0 +1,17 @@
+---
+name: 👷‍♂️ Build
+
+on:
+  push:
+
+jobs:
+  lint:
+    name: 🧹 Lint
+    runs-on: ubuntu-latest
+    if: github.actor != 'renovate[bot]'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: 🧹 Lint
+        uses: pre-commit/action@v3.0.1

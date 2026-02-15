@@ -7,15 +7,44 @@
       "properties": {
         "owner": {
           "description": "Owner of this workspace (applied as ws.kloudkit.com/owner global label).",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "project": {
           "description": "Project this workspace belongs to (applied as ws.kloudkit.com/project global label).",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "labels": {
+          "description": "Additional labels applied to all chart resources.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "description": "Additional annotations applied to all chart resources.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "timezone": {
           "description": "IANA timezone for the workspace (sets the TZ environment variable).",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "image": {
           "type": "object"

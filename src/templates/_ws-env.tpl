@@ -63,7 +63,7 @@
 -}}
 {{- range $vars }}
 {{- $val := dig .g .k nil $config }}
-{{- if not (eq (toString $val) "<nil>") }}
+{{- if not (kindIs "invalid" $val) }}
 - name: WS_{{ .g | upper }}_{{ .k | upper }}
 {{- if kindIs "map" $val }}
   valueFrom: {{- $val.valueFrom | toYaml | nindent 4 }}

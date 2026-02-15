@@ -1,4 +1,4 @@
-suite: workspace
+suite: workspace (defaults)
 templates:
   - templates/workspace.yaml
 tests:
@@ -9,3 +9,27 @@ tests:
     asserts:
       - isKind:
           of: Deployment
+
+  - it: renders a Service
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - isKind:
+          of: Service
+
+  - it: renders a PersistentVolumeClaim
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+
+  - it: renders a Ingress
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - isKind:
+          of: Ingress
