@@ -1,0 +1,109 @@
+{{- $ws := .Values.workspace | default dict -}}
+{{- define "workspace.hardcodedValues" -}}
+{{- $ws := .Values.workspace | default dict -}}
+controllers:
+  main:
+    revisionHistoryLimit: 3
+    pod:
+      hostname: {{ dig "hostname" .Release.Name $ws | quote }}
+      {{- with (dig "nodeSelector" nil $ws) }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "tolerations" nil $ws) }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "affinity" nil $ws) }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+    containers:
+      main:
+        image:
+          repository: {{ dig "image" "repository" "ghcr.io/kloudkit/workspace" $ws }}
+          tag: {{ dig "image" "tag" .Chart.AppVersion $ws | quote }}
+          pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $ws }}
+        env:
+          {{- with (dig "timezone" nil $ws) }}
+          - name: TZ
+            value: {{ . | quote }}
+          {{- end }}
+          {{- include "workspace.wsEnv" . | nindent 10 }}
+          {{- with (dig "env" nil $ws) }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with (dig "envFrom" nil $ws) }}
+        envFrom:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /healthz
+            port: {{ include "workspace.serverPort" . }}
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /healthz
+            port: {{ include "workspace.serverPort" . }}
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: {{ include "workspace.serverPort" . }}
+      {{- if (dig "metrics" "enabled" false $ws) }}
+      metrics:
+        port: {{ include "workspace.metricsPort" . }}
+      {{- end }}
+
+{{- if (dig "ingress" "enabled" true $ws) }}
+ingress:
+  main:
+    {{- with (dig "ingress" "className" nil $ws) }}
+    className: {{ . }}
+    {{- end }}
+    hosts:
+      - host: {{ dig "ingress" "host" (printf "%s.local" .Release.Name) $ws }}
+        paths:
+          - path: /
+            service:
+              identifier: main
+              port: http
+    {{- with (dig "ingress" "tls" nil $ws) }}
+    tls: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with (dig "ingress" "annotations" nil $ws) }}
+    annotations: {{ toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}
+
+{{- if (dig "persistence" "enabled" true $ws) }}
+persistence:
+  workspace:
+    type: {{ dig "persistence" "type" "persistentVolumeClaim" $ws }}
+    accessMode: {{ dig "persistence" "accessMode" "ReadWriteOnce" $ws }}
+    size: {{ dig "persistence" "size" "10Gi" $ws }}
+    {{- with (dig "persistence" "storageClass" nil $ws) }}
+    storageClassName: {{ . }}
+    {{- end }}
+    globalMounts:
+      - path: {{ include "workspace.serverRoot" . }}
+{{- end }}
+{{- end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "workspace.hardcodedValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
+
+{{- $globalLabels := dict -}}
+{{- with (dig "owner" nil $ws) }}
+  {{- $_ := set $globalLabels "ws.kloudkit.com/owner" (. | toString) -}}
+{{- end }}
+{{- with (dig "project" nil $ws) }}
+  {{- $_ := set $globalLabels "ws.kloudkit.com/project" (. | toString) -}}
+{{- end }}
+{{- if $globalLabels }}
+  {{- $_ := mergeOverwrite ($ctx.Values.global.labels) $globalLabels -}}
+{{- end }}
+
+{{- include "bjw-s.common.loader.all" $ctx }}

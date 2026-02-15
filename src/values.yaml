@@ -1,0 +1,342 @@
+---
+## Kloud Workspace Helm Chart
+## https://ws.kloudkit.com
+
+# workspace:
+
+  ## -- Workspace owner (optional, creates ws.kloudkit.com/owner label)
+  ## @param owner -- Owner of this workspace (applied as a global label)
+  # owner: ~
+
+  ## -- Workspace project (optional, creates ws.kloudkit.com/project label)
+  ## @param project -- Project this workspace belongs to (applied as a global label)
+  # project: ~
+
+  ## -- Timezone (optional, sets the TZ environment variable)
+  ## @param timezone -- IANA timezone for the workspace (e.g. America/New_York)
+  # timezone: ~
+
+  ## -- Container image configuration
+  ## @param image.repository -- Image repository (default: ghcr.io/kloudkit/workspace)
+  ## @param image.tag -- Image tag (default: Chart.AppVersion)
+  ## @param image.pullPolicy -- Image pull policy (default: IfNotPresent)
+  # image:
+  #   repository: ghcr.io/kloudkit/workspace
+  #   tag: ""
+  #   pullPolicy: IfNotPresent
+
+  ## -- Pod hostname
+  ## @param hostname -- Hostname assigned to the workspace pod (default: Release.Name)
+  # hostname: ~
+
+  ## -- Prometheus metrics
+  ## @param metrics.enabled -- Enable the metrics sidecar port (default: false)
+  # metrics:
+  #   enabled: false
+
+  ## -- Persistent storage for the workspace root directory
+  ## @param persistence.enabled -- Enable persistent volume claim (default: true)
+  ## @param persistence.type -- Volume type (default: persistentVolumeClaim)
+  ## @param persistence.storageClass -- StorageClass name (~ uses the cluster default)
+  ## @param persistence.size -- Requested storage size (default: 10Gi)
+  ## @param persistence.accessMode -- PVC access mode (default: ReadWriteOnce)
+  # persistence:
+  #   enabled: true
+  #   type: persistentVolumeClaim
+  #   storageClass: ~
+  #   size: 10Gi
+  #   accessMode: ReadWriteOnce
+
+  ## -- Ingress configuration
+  ## @param ingress.enabled -- Create an Ingress resource (default: true)
+  ## @param ingress.className -- Ingress class name
+  ## @param ingress.host -- Hostname for the ingress rule (default: <release>.local)
+  ## @param ingress.tls -- TLS configuration (list of secrets)
+  ## @param ingress.annotations -- Additional ingress annotations
+  # ingress:
+  #   enabled: true
+  #   className: ~
+  #   host: ~
+  #   tls: []
+  #   annotations: {}
+
+  ## -- Extra environment variables and sources
+  ## @param env -- Additional env vars passed directly to the container
+  ## @param envFrom -- Additional envFrom sources (secrets/configmaps)
+  # env: []
+  # envFrom: []
+
+  ## -- Workspace-native WS_* configuration (generated from env.reference.yaml)
+  ## @generated:begin
+  # config:
+    # apt:
+      ## List of trusted GPG pairs.
+      ## Maps to: WS_APT_ADDITIONAL_GPG_KEYS
+      # additional_gpg_keys: []
+
+      ## List of trusted GPG pairs *(HTTP or insecure HTTPS)*.
+      ## Maps to: WS_APT_ADDITIONAL_INSECURE_GPG_KEYS
+      # additional_insecure_gpg_keys: []
+
+      ## Additional APT packages installed during startup.
+      ## Maps to: WS_APT_ADDITIONAL_PACKAGES
+      # additional_packages: []
+
+      ## Appends additional repository lines to `/etc/apt/sources.list`.
+      ## Maps to: WS_APT_ADDITIONAL_REPOS
+      # additional_repos: []
+
+      ## Disables specified APT repositories or all repositories.
+      ## Maps to: WS_APT_DISABLE_REPOS
+      # disable_repos: []
+
+      ## Forces `apt-get update` before any package action.
+      ## Maps to: WS_APT_UPDATE_CACHE
+      # update_cache:
+
+    # auth:
+      ## Disables password-less `sudo`.
+      ## Maps to: WS_AUTH_DISABLE_SUDO
+      # disable_sudo:
+
+      ## Plaintext password for web login.
+      ## Maps to: WS_AUTH_PASSWORD
+      # password:
+
+      ## Argon2 hash used for web login.
+      ## Maps to: WS_AUTH_PASSWORD_HASHED
+      # password_hashed:
+
+    # ca:
+      ## URLs of additional CA certificates to trust *(HTTPS only)*.
+      ## Maps to: WS_CA_ADDITIONAL_CERT_ENDPOINTS
+      # additional_cert_endpoints: []
+
+      ## URLs of additional CA certificates to trust *(HTTP or insecure HTTPS)*.
+      ## Maps to: WS_CA_ADDITIONAL_CERT_INSECURE_ENDPOINTS
+      # additional_cert_insecure_endpoints: []
+
+    # docker:
+      ## Enables Docker inside the container.
+      ## Maps to: WS_DOCKER_ENABLE_CLIENT
+      # enable_client:
+
+    # editor:
+      ## Installs these Marketplace extension IDs at startup.
+      ## Maps to: WS_EDITOR_ADDITIONAL_VS_EXTENSIONS
+      # additional_vs_extensions: []
+
+      ## Installs `.vsix` file found in this directory.
+      ## Maps to: WS_EDITOR_ADDITIONAL_VS_EXTENSIONS_DIR
+      # additional_vs_extensions_dir:
+
+      ## Disables the custom font used for code comments.
+      ## Maps to: WS_EDITOR_COMMENTS_DISABLE_FONT
+      # comments_disable_font:
+
+      ## Editor's scrollbar size.
+      ## Maps to: WS_EDITOR_SCROLLBAR_SIZE
+      # scrollbar_size:
+
+      ## JSON object to deep merge into VSCode `settings.json`.
+      ## Maps to: WS_EDITOR_SETTINGS_MERGE
+      # settings_merge:
+
+      ## Path to a JSON file to deep merge into VSCode `settings.json`.
+      ## Maps to: WS_EDITOR_SETTINGS_MERGE_FILE
+      # settings_merge_file:
+
+      ## JSON object to completely replace VSCode settings.json.
+      ## Maps to: WS_EDITOR_SETTINGS_OVERRIDE
+      # settings_override:
+
+      ## Path to a JSON file to completely replace VSCode `settings.json`.
+      ## Maps to: WS_EDITOR_SETTINGS_OVERRIDE_FILE
+      # settings_override_file:
+
+    # features:
+      ## Installs additional feature at startup.
+      ## Maps to: WS_FEATURES_ADDITIONAL_FEATURES
+      # additional_features: []
+
+      ## Directory path where additional features are located.
+      ## Maps to: WS_FEATURES_DIR
+      # dir:
+
+      ## URL of a ws-feature-store instance used as a local mirror.
+      ## Maps to: WS_FEATURES_STORE_URL
+      # store_url:
+
+    # git:
+      ## Clears outputs from Jupyter notebooks during git operations.
+      ## Maps to: WS_GIT_CLEAR_NOTEBOOK_OUTPUT
+      # clear_notebook_output:
+
+      ## Clones this repository into `${WS_SERVER_ROOT}` at startup.
+      ## Maps to: WS_GIT_CLONE_REPO
+      # clone_repo:
+
+      ## Lifetime *(seconds)* of cached Git credentials.
+      ## Maps to: WS_GIT_CREDENTIAL_CACHE_TIMEOUT
+      # credential_cache_timeout:
+
+    # helm:
+      ## Restores the Helm repo cache.
+      ## Maps to: WS_HELM_PRELOAD_CACHE
+      # preload_cache:
+
+    # logging:
+      ## Base directory for all workspace logs.
+      ## Maps to: WS_LOGGING_DIR
+      # dir:
+
+      ## Disable console logging.
+      ## Maps to: WS_LOGGING_DISABLE_CONSOLE_OUTPUT
+      # disable_console_output:
+
+      ## Combined log file for `stdout` and `stderr`.
+      ## Maps to: WS_LOGGING_MAIN_FILE
+      # main_file:
+
+    # metrics:
+      ## Comma-separated list of metric collectors to enable.
+      ## Maps to: WS_METRICS_COLLECTORS
+      # collectors: []
+
+      ## Enables the Prometheus metrics exporter.
+      ## Maps to: WS_METRICS_ENABLE
+      # enable:
+
+      ## Port on which the metrics endpoint listens.
+      ## Maps to: WS_METRICS_PORT
+      # port:
+
+    # secrets:
+      ## Master encryption key for secrets vault.
+      ## Maps to: WS_SECRETS_MASTER_KEY
+      # master_key:
+
+      ## Path to file containing the master encryption key.
+      ## Maps to: WS_SECRETS_MASTER_KEY_FILE
+      # master_key_file:
+
+      ## Path to the secrets vault file.
+      ## Maps to: WS_SECRETS_VAULT
+      # vault:
+
+    # server:
+      ## Port on which the web server listens.
+      ## Maps to: WS_SERVER_PORT
+      # port:
+
+      ## Domain suffix used to expose server's forwarded ports.
+      ## Maps to: WS_SERVER_PROXY_DOMAIN
+      # proxy_domain: []
+
+      ## Root directory for the workspace.
+      ## Maps to: WS_SERVER_ROOT_DIR
+      # root_dir:
+
+      ## Path or inline PEM for the server certificate.
+      ## Maps to: WS_SERVER_SSL_CERT
+      # ssl_cert:
+
+      ## Space-delimited DNS names for self-signed certificate.
+      ## Maps to: WS_SERVER_SSL_HOSTS
+      # ssl_hosts: []
+
+      ## Path or inline PEM for the private key.
+      ## Maps to: WS_SERVER_SSL_KEY
+      # ssl_key:
+
+    # startup:
+      ## Fail fast if any startup script exits non-zero.
+      ## Maps to: WS_STARTUP_FAIL_ON_ERROR
+      # fail_on_error:
+
+    # terminal:
+      ## Hides Docker context info in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_DOCKER_CONTEXT
+      # prompt_hide_docker_context:
+
+      ## Hides the container hostname in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_HOSTNAME
+      # prompt_hide_hostname:
+
+      ## Hides current Kubernetes context in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_KUBERNETES_CONTEXT
+      # prompt_hide_kubernetes_context:
+
+      ## Hides active Node.js version in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_NODEJS_VERSION
+      # prompt_hide_nodejs_version:
+
+      ## Hides active Python version in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_PYTHON_VERSION
+      # prompt_hide_python_version:
+
+      ## Hides the current user in the prompt.
+      ## Maps to: WS_TERMINAL_PROMPT_HIDE_USER
+      # prompt_hide_user:
+
+    # zsh:
+      ## Loads additional `oh-my-zsh` plugins.
+      ## Maps to: WS_ZSH_ADDITIONAL_PLUGINS
+      # additional_plugins:
+
+      ## Default arguments passed to `fzf` for history search.
+      ## Maps to: WS_ZSH_FZF_HISTORY_ARGS
+      # fzf_history_args:
+
+      ## Key binding that triggers fzf history search.
+      ## Maps to: WS_ZSH_FZF_HISTORY_BIND
+      # fzf_history_bind:
+
+      ## Includes ISO 8601 date timestamps in search results.
+      ## Maps to: WS_ZSH_FZF_HISTORY_DATES_IN_SEARCH
+      # fzf_history_dates_in_search:
+
+      ## Moves cursor to end-of-line after selecting a history entry.
+      ## Maps to: WS_ZSH_FZF_HISTORY_END_OF_LINE
+      # fzf_history_end_of_line:
+
+      ## Shows event numbers in history search results.
+      ## Maps to: WS_ZSH_FZF_HISTORY_EVENT_NUMBERS
+      # fzf_history_event_numbers:
+
+      ## Additional arguments appended to the default `fzf` arguments.
+      ## Maps to: WS_ZSH_FZF_HISTORY_EXTRA_ARGS
+      # fzf_history_extra_args:
+
+      ## Prefix prepended to the fzf query when the buffer is non-empty.
+      ## Maps to: WS_ZSH_FZF_HISTORY_QUERY_PREFIX
+      # fzf_history_query_prefix:
+
+      ## Removes duplicate entries from history search results.
+      ## Maps to: WS_ZSH_FZF_HISTORY_REMOVE_DUPLICATES
+      # fzf_history_remove_duplicates:
+
+      ## Enables built-in `oh-my-zsh` plugins.
+      ## Maps to: WS_ZSH_PLUGINS
+      # plugins:
+
+
+  ## @generated:end
+
+  ## -- Extensibility
+  ## @param sidecars -- Additional sidecar containers
+  # sidecars: {}
+  ## @param initContainers -- Additional init containers
+  # initContainers: {}
+  ## @param extraVolumes -- Additional volumes to attach to the pod
+  # extraVolumes: []
+  ## @param extraVolumeMounts -- Additional volume mounts for the main container
+  # extraVolumeMounts: []
+
+  ## -- Scheduling constraints
+  ## @param nodeSelector -- Node labels for pod assignment
+  # nodeSelector: {}
+  ## @param tolerations -- Tolerations for pod scheduling
+  # tolerations: []
+  ## @param affinity -- Affinity rules for pod scheduling
+  # affinity: {}

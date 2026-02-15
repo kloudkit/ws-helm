@@ -1,0 +1,1599 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workspace": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "description": "Owner of this workspace (applied as ws.kloudkit.com/owner global label).",
+          "type": ["string", "null"]
+        },
+        "project": {
+          "description": "Project this workspace belongs to (applied as ws.kloudkit.com/project global label).",
+          "type": ["string", "null"]
+        },
+        "timezone": {
+          "description": "IANA timezone for the workspace (sets the TZ environment variable).",
+          "type": ["string", "null"]
+        },
+        "image": {
+          "type": "object"
+        },
+        "hostname": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "persistence": {
+          "type": "object"
+        },
+        "ingress": {
+          "type": "object"
+        },
+        "env": {
+          "type": "array"
+        },
+        "envFrom": {
+          "type": "array"
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "apt": {
+              "type": "object",
+              "properties": {
+                "additional_gpg_keys": {
+                  "description": "List of trusted GPG pairs.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "additional_insecure_gpg_keys": {
+                  "description": "List of trusted GPG pairs *(HTTP or insecure HTTPS)*.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "additional_packages": {
+                  "description": "Additional APT packages installed during startup.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "additional_repos": {
+                  "description": "Appends additional repository lines to `/etc/apt/sources.list`.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "disable_repos": {
+                  "description": "Disables specified APT repositories or all repositories.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "update_cache": {
+                  "description": "Forces `apt-get update` before any package action.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "auth": {
+              "type": "object",
+              "properties": {
+                "disable_sudo": {
+                  "description": "Disables password-less `sudo`.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "password": {
+                  "description": "Plaintext password for web login.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "password_hashed": {
+                  "description": "Argon2 hash used for web login.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "ca": {
+              "type": "object",
+              "properties": {
+                "additional_cert_endpoints": {
+                  "description": "URLs of additional CA certificates to trust *(HTTPS only)*.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "additional_cert_insecure_endpoints": {
+                  "description": "URLs of additional CA certificates to trust *(HTTP or insecure HTTPS)*.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "docker": {
+              "type": "object",
+              "properties": {
+                "enable_client": {
+                  "description": "Enables Docker inside the container.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "editor": {
+              "type": "object",
+              "properties": {
+                "additional_vs_extensions": {
+                  "description": "Installs these Marketplace extension IDs at startup.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "additional_vs_extensions_dir": {
+                  "description": "Installs `.vsix` file found in this directory.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "comments_disable_font": {
+                  "description": "Disables the custom font used for code comments.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scrollbar_size": {
+                  "description": "Editor's scrollbar size.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "settings_merge": {
+                  "description": "JSON object to deep merge into VSCode `settings.json`.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "settings_merge_file": {
+                  "description": "Path to a JSON file to deep merge into VSCode `settings.json`.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "settings_override": {
+                  "description": "JSON object to completely replace VSCode settings.json.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "settings_override_file": {
+                  "description": "Path to a JSON file to completely replace VSCode `settings.json`.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "features": {
+              "type": "object",
+              "properties": {
+                "additional_features": {
+                  "description": "Installs additional feature at startup.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "dir": {
+                  "description": "Directory path where additional features are located.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "store_url": {
+                  "description": "URL of a ws-feature-store instance used as a local mirror.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "git": {
+              "type": "object",
+              "properties": {
+                "clear_notebook_output": {
+                  "description": "Clears outputs from Jupyter notebooks during git operations.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "clone_repo": {
+                  "description": "Clones this repository into `${WS_SERVER_ROOT}` at startup.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "credential_cache_timeout": {
+                  "description": "Lifetime *(seconds)* of cached Git credentials.",
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "helm": {
+              "type": "object",
+              "properties": {
+                "preload_cache": {
+                  "description": "Restores the Helm repo cache.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "logging": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "description": "Base directory for all workspace logs.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "disable_console_output": {
+                  "description": "Disable console logging.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "main_file": {
+                  "description": "Combined log file for `stdout` and `stderr`.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "collectors": {
+                  "description": "Comma-separated list of metric collectors to enable.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "enable": {
+                  "description": "Enables the Prometheus metrics exporter.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "port": {
+                  "description": "Port on which the metrics endpoint listens.",
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "secrets": {
+              "type": "object",
+              "properties": {
+                "master_key": {
+                  "description": "Master encryption key for secrets vault.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "master_key_file": {
+                  "description": "Path to file containing the master encryption key.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "vault": {
+                  "description": "Path to the secrets vault file.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "server": {
+              "type": "object",
+              "properties": {
+                "port": {
+                  "description": "Port on which the web server listens.",
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "proxy_domain": {
+                  "description": "Domain suffix used to expose server's forwarded ports.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "root_dir": {
+                  "description": "Root directory for the workspace.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ssl_cert": {
+                  "description": "Path or inline PEM for the server certificate.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ssl_hosts": {
+                  "description": "Space-delimited DNS names for self-signed certificate.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "ssl_key": {
+                  "description": "Path or inline PEM for the private key.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "startup": {
+              "type": "object",
+              "properties": {
+                "fail_on_error": {
+                  "description": "Fail fast if any startup script exits non-zero.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "terminal": {
+              "type": "object",
+              "properties": {
+                "prompt_hide_docker_context": {
+                  "description": "Hides Docker context info in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "prompt_hide_hostname": {
+                  "description": "Hides the container hostname in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "prompt_hide_kubernetes_context": {
+                  "description": "Hides current Kubernetes context in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "prompt_hide_nodejs_version": {
+                  "description": "Hides active Node.js version in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "prompt_hide_python_version": {
+                  "description": "Hides active Python version in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "prompt_hide_user": {
+                  "description": "Hides the current user in the prompt.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "zsh": {
+              "type": "object",
+              "properties": {
+                "additional_plugins": {
+                  "description": "Loads additional `oh-my-zsh` plugins.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_args": {
+                  "description": "Default arguments passed to `fzf` for history search.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_bind": {
+                  "description": "Key binding that triggers fzf history search.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_dates_in_search": {
+                  "description": "Includes ISO 8601 date timestamps in search results.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_end_of_line": {
+                  "description": "Moves cursor to end-of-line after selecting a history entry.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_event_numbers": {
+                  "description": "Shows event numbers in history search results.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_extra_args": {
+                  "description": "Additional arguments appended to the default `fzf` arguments.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_query_prefix": {
+                  "description": "Prefix prepended to the fzf query when the buffer is non-empty.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fzf_history_remove_duplicates": {
+                  "description": "Removes duplicate entries from history search results.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "plugins": {
+                  "description": "Enables built-in `oh-my-zsh` plugins.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "valueFrom": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "valueFrom"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "sidecars": {
+          "type": "object"
+        },
+        "initContainers": {
+          "type": "object"
+        },
+        "extraVolumes": {
+          "type": "array"
+        },
+        "extraVolumeMounts": {
+          "type": "array"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array"
+        },
+        "affinity": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

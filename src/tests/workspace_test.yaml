@@ -1,0 +1,11 @@
+suite: workspace
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: renders a Deployment
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isKind:
+          of: Deployment

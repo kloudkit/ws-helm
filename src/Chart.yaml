@@ -1,0 +1,13 @@
+apiVersion: v2
+name: workspace
+description: A Helm chart for KloudKIT Workspace
+version: 0.1.0
+appVersion: v0.1.2
+dependencies:
+  - name: common
+    repository: https://bjw-s-labs.github.io/helm-charts
+    version: 4.6.0
+home: https://ws.kloudkit.com
+sources:
+- https://github.com/kloudkit/ws-helm
+- https://github.com/kloudkit/ws-meta
