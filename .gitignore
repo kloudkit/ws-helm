@@ -1,3 +1,4 @@
-CLAUDE.md
-src/charts
 .common.values.yaml
+CLAUDE.md
+dist/
+src/charts
