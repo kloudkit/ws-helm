@@ -62,7 +62,7 @@ should render default PVC:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 10Gi
+        storage: 25Gi
 should render default Service:
   1: |
     ports:

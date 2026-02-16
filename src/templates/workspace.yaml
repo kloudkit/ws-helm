@@ -1,6 +1,19 @@
-{{- $ws := .Values.workspace | default dict -}}
 {{- define "workspace.hardcodedValues" -}}
 {{- $ws := .Values.workspace | default dict -}}
+global:
+  {{- $labels := dict }}
+  {{- with (dig "owner" nil $ws) }}
+  {{- $_ := set $labels "ws.kloudkit.com/owner" (toString .) }}
+  {{- end }}
+  {{- with (dig "project" nil $ws) }}
+  {{- $_ := set $labels "ws.kloudkit.com/project" (toString .) }}
+  {{- end }}
+  {{- with (dig "labels" nil $ws) }}
+  {{- $_ := mergeOverwrite $labels . }}
+  {{- end }}
+  labels: {{ toYaml $labels | nindent 4 }}
+  annotations: {{ toYaml (dig "annotations" (dict) $ws) | nindent 4 }}
+
 controllers:
   main:
     revisionHistoryLimit: 3
@@ -9,6 +22,7 @@ controllers:
       {{- with (dig "hostname" nil $ws) }}
       hostname: {{ tpl (toString .) $ | quote }}
       {{- end }}
+
       {{- with (dig "nodeSelector" nil $ws) }}
       nodeSelector: {{ toYaml . | nindent 8 }}
       {{- end }}
@@ -32,7 +46,9 @@ controllers:
           {{- with (dig "timezone" nil $ws) }}
           TZ: {{ . | quote }}
           {{- end }}
+
           {{- include "workspace.wsEnv" . | nindent 10 }}
+
           {{- with (dig "env" nil $ws) }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
@@ -40,6 +56,10 @@ controllers:
         {{- with (dig "envFrom" nil $ws) }}
         envFrom:
           {{- toYaml . | nindent 10 }}
+        {{- end }}
+
+        {{- with (dig "securityContext" nil $ws) }}
+        securityContext: {{ toYaml . | nindent 10 }}
         {{- end }}
 
         probes:
@@ -66,6 +86,18 @@ service:
         port: {{ include "workspace.metricsPort" . }}
       {{- end }}
 
+{{- if (dig "config" "metrics" "enable" false $ws) }}
+serviceMonitor:
+  main:
+    enabled: true
+    endpoints:
+      - port: metrics
+        scheme: http
+        path: /
+        interval: 1m
+        scrapeTimeout: 10s
+{{- end }}
+
 {{- if (dig "ingress" "enabled" false $ws) }}
 ingress:
   main:
@@ -73,12 +105,26 @@ ingress:
     className: {{ . }}
     {{- end }}
     hosts:
-      - host: {{ dig "ingress" "host" (printf "%s.local" .Release.Name) $ws }}
-        paths:
+      {{- $proxyDomains := dig "config" "server" "proxy_domain" nil $ws }}
+      {{- if $proxyDomains }}
+        {{- if kindIs "string" $proxyDomains }}
+          {{- $proxyDomains = list $proxyDomains }}
+        {{- end }}
+        {{- range $proxyDomains }}
+          {{- $raw := toString . }}
+          {{- $raw = replace (printf "%s%s%s%s%s" "{{" "`" "{{port}}" "`" "}}") "__PORT__" $raw }}
+          {{- $raw = replace (printf "%s%s" "{{" "port}}") "__PORT__" $raw }}
+          {{- $host := regexReplaceAll "__PORT__-?" (tpl $raw $) "" }}
+      - host: {{ $host | quote }}
+        paths: &defaultPaths
           - path: /
             service:
               identifier: main
               port: http
+      - host: {{ printf "*.%s" $host | quote }}
+        paths: *defaultPaths
+        {{- end }}
+      {{- end }}
     {{- with (dig "ingress" "tls" nil $ws) }}
     tls: {{ toYaml . | nindent 6 }}
     {{- end }}
@@ -92,7 +138,7 @@ persistence:
   workspace:
     type: {{ dig "persistence" "type" "persistentVolumeClaim" $ws }}
     accessMode: {{ dig "persistence" "accessMode" "ReadWriteOnce" $ws }}
-    size: {{ dig "persistence" "size" "10Gi" $ws }}
+    size: {{ dig "persistence" "size" "25Gi" $ws }}
     {{- with (dig "persistence" "storageClass" nil $ws) }}
     storageClassName: {{ . }}
     {{- end }}
@@ -106,28 +152,4 @@ persistence:
 
 {{- $ctx := deepCopy . -}}
 {{- $_ := include "workspace.hardcodedValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
-
-{{- if not (hasKey $ctx.Values "global") }}
-  {{- $_ := set $ctx.Values "global" (dict "labels" (dict) "annotations" (dict)) -}}
-{{- end }}
-{{- if not $ctx.Values.global.labels }}
-  {{- $_ := set $ctx.Values.global "labels" (dict) -}}
-{{- end }}
-{{- if not $ctx.Values.global.annotations }}
-  {{- $_ := set $ctx.Values.global "annotations" (dict) -}}
-{{- end }}
-
-{{- with (dig "owner" nil $ws) }}
-  {{- $_ := set $ctx.Values.global.labels "ws.kloudkit.com/owner" (. | toString) -}}
-{{- end }}
-{{- with (dig "project" nil $ws) }}
-  {{- $_ := set $ctx.Values.global.labels "ws.kloudkit.com/project" (. | toString) -}}
-{{- end }}
-{{- with (dig "labels" nil $ws) }}
-  {{- $_ := mergeOverwrite $ctx.Values.global.labels . -}}
-{{- end }}
-{{- with (dig "annotations" nil $ws) }}
-  {{- $_ := mergeOverwrite $ctx.Values.global.annotations . -}}
-{{- end }}
-
 {{- include "bjw-s.common.loader.all" $ctx }}

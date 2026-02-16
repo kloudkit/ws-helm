@@ -116,6 +116,45 @@ tests:
             name: TZ
             value: America/New_York
 
+  - it: should set WS_SERVER_PROXY_DOMAIN env from proxy_domain config
+    set:
+      workspace:
+        config:
+          server:
+            proxy_domain:
+              - primary.example.com
+              - secondary.example.com
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_SERVER_PROXY_DOMAIN
+            value: "primary.example.com secondary.example.com"
+
+  - it: should set container securityContext
+    set:
+      workspace:
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsGroup
+          value: 1000
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+
   - it: should support templated hostname
     set:
       workspace:

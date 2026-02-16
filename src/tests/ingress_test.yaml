@@ -1,20 +1,6 @@
 ---
 suite: Ingress configuration
 tests:
-  - it: should use custom ingress host
-    set:
-      workspace:
-        ingress:
-          enabled: true
-          host: workspace.example.com
-    documentSelector:
-      path: kind
-      value: Ingress
-    asserts:
-      - equal:
-          path: spec.rules[0].host
-          value: workspace.example.com
-
   - it: should set ingress className
     set:
       workspace:
@@ -49,6 +35,71 @@ tests:
             secretName: ws-tls
             hosts:
               - workspace.example.com
+
+  - it: should create exact and wildcard ingress hosts from proxy_domain
+    set:
+      workspace:
+        ingress:
+          enabled: true
+        config:
+          server:
+            proxy_domain: ws.example.com
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: ws.example.com
+      - equal:
+          path: spec.rules[1].host
+          value: "*.ws.example.com"
+
+  - it: should create exact and wildcard hosts for multiple proxy domains
+    set:
+      workspace:
+        ingress:
+          enabled: true
+        config:
+          server:
+            proxy_domain:
+              - primary.example.com
+              - secondary.example.com
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: primary.example.com
+      - equal:
+          path: spec.rules[1].host
+          value: "*.primary.example.com"
+      - equal:
+          path: spec.rules[2].host
+          value: secondary.example.com
+      - equal:
+          path: spec.rules[3].host
+          value: "*.secondary.example.com"
+
+  - it: should extract base domain and wildcard from port-templated proxy domain
+    set:
+      workspace:
+        ingress:
+          enabled: true
+        config:
+          server:
+            proxy_domain: "{{`{{port}}`}}-{{ .Release.Name }}.some-domain"
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: RELEASE-NAME.some-domain
+      - equal:
+          path: spec.rules[1].host
+          value: "*.RELEASE-NAME.some-domain"
 
   - it: should set ingress annotations
     set:

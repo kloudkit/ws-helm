@@ -16,9 +16,6 @@
   # -- Additional annotations applied to all resources
   # annotations: {}
 
-  # -- IANA timezone for the workspace (e.g. America/New_York)
-  # timezone: ~
-
   # -- Container image configuration
   # image:
   #   # -- Image repository
@@ -31,40 +28,19 @@
   #   # @default -- IfNotPresent
   #   pullPolicy: IfNotPresent
 
+  # -- IANA timezone for the workspace (e.g. America/New_York)
+  # timezone: ~
+
   # -- Hostname assigned to the workspace pod (supports Helm templating)
   # hostname: ~
-
-  # -- Persistent storage for the workspace root directory
-  # persistence:
-  #   # -- Enable persistent volume claim
-  #   enabled: true
-  #   # -- Volume type
-  #   type: persistentVolumeClaim
-  #   # -- StorageClass name (~ uses the cluster default)
-  #   storageClass: ~
-  #   # -- Requested storage size
-  #   size: 10Gi
-  #   # -- PVC access mode
-  #   accessMode: ReadWriteOnce
-
-  # -- Ingress configuration
-  # ingress:
-  #   # -- Create an Ingress resource
-  #   enabled: false
-  #   # -- Ingress class name
-  #   className: ~
-  #   # -- Hostname for the ingress rule
-  #   # @default -- <release>.local
-  #   host: ~
-  #   # -- TLS configuration (list of secrets)
-  #   tls: []
-  #   # -- Additional ingress annotations
-  #   annotations: {}
 
   # -- Additional env vars passed directly to the container
   # env: {}
   # -- Additional envFrom sources (secrets/configmaps)
   # envFrom: []
+
+  # -- Security context for the main container
+  # securityContext: {}
 
   # -- Workspace-native WS_* configuration (generated from env.reference.yaml)
   # @generated:begin
@@ -319,22 +295,30 @@
       # -- Enables built-in `oh-my-zsh` plugins.
       # Maps to: WS_ZSH_PLUGINS
       # plugins:
-
-
   # @generated:end
 
-  # -- Additional sidecar containers
-  # sidecars: {}
-  # -- Additional init containers
-  # initContainers: {}
-  # -- Additional volumes to attach to the pod
-  # extraVolumes: []
-  # -- Additional volume mounts for the main container
-  # extraVolumeMounts: []
+  # -- Persistent storage for the workspace root directory
+  # persistence:
+  #   # -- Enable persistent volume claim
+  #   enabled: true
+  #   # -- Volume type
+  #   type: persistentVolumeClaim
+  #   # -- StorageClass name (~ uses the cluster default)
+  #   storageClass: ~
+  #   # -- Requested storage size
+  #   size: 25Gi
+  #   # -- PVC access mode
+  #   accessMode: ReadWriteOnce
 
-  # -- Node labels for pod assignment
-  # nodeSelector: {}
-  # -- Tolerations for pod scheduling
-  # tolerations: []
-  # -- Affinity rules for pod scheduling
-  # affinity: {}
+  # -- Ingress configuration
+  # When config.server.proxy_domain is set, ingress hosts are derived from it
+  # automatically (exact + wildcard for each domain).
+  # ingress:
+  #   # -- Create an Ingress resource
+  #   enabled: false
+  #   # -- Ingress class name
+  #   className: ~
+  #   # -- TLS configuration (list of secrets)
+  #   tls: []
+  #   # -- Additional ingress annotations
+  #   annotations: {}

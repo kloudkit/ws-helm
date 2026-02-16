@@ -82,3 +82,27 @@ tests:
           content:
             name: WS_METRICS_COLLECTORS
             value: cpu,memory
+
+  - it: should create ServiceMonitor when metrics enabled
+    capabilities:
+      apiVersions:
+        - monitoring.coreos.com/v1
+    documentSelector:
+      path: kind
+      value: ServiceMonitor
+    asserts:
+      - isNotNull:
+          path: spec.selector.matchLabels
+      - equal:
+          path: spec.endpoints[0].port
+          value: metrics
+      - equal:
+          path: spec.endpoints[0].path
+          value: /
+
+  - it: should not create ServiceMonitor when CRD not available
+    asserts:
+      - not: true
+        containsDocument:
+          kind: ServiceMonitor
+          apiVersion: monitoring.coreos.com/v1

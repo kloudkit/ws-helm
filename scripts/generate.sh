@@ -156,76 +156,6 @@ generate_schema() {
 }
 
 ###############################################################################
-# 3. Generate templates/_ws-env.tpl
-###############################################################################
-generate_env_tpl() {
-  local tpl_file="$CHART_DIR/templates/_ws-env.tpl"
-
-  # Build the registry: one (dict ...) entry per env var
-  local registry
-  registry=$(echo "$REF_JSON" | jq -r '
-    def delimiter:
-      ((.longDescription // "") + " " + (.description // "") + " " + (.example // "")) as $text |
-      if ($text | test("semicolon-delimited"; "i")) then ";"
-      elif ($text | test("space-delimited"; "i")) then " "
-      elif ($text | test("comma-delimited|comma-separated"; "i")) then ","
-      else "" end;
-
-    [.envs | to_entries[] |
-     .key as $group |
-     .value.properties | to_entries[] |
-     .key as $prop |
-     .value | delimiter as $delim |
-     "  (dict \"g\" \"\($group)\" \"k\" \"\($prop)\"" +
-     (if $delim != "" then " \"d\" \"\($delim)\"" else "" end) +
-     ")"
-    ] | join("\n")
-  ')
-
-  {
-    cat <<'HEADER'
-{{- define "workspace.wsEnv" -}}
-{{- $config := dig "config" dict (.Values.workspace | default dict) -}}
-{{- $vars := list
-HEADER
-    echo "$registry"
-    cat <<'FOOTER'
--}}
-{{- range $vars }}
-{{- $val := dig .g .k nil $config }}
-{{- if not (kindIs "invalid" $val) }}
-WS_{{ .g | upper }}_{{ .k | upper }}:
-{{- if kindIs "map" $val }}
-  {{- $val | toYaml | nindent 2 }}
-{{- else if and (kindIs "slice" $val) (hasKey . "d") }}
-  {{ $val | join .d | quote }}
-{{- else }}
-  {{ $val | toString | quote }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end -}}
-
-{{- define "workspace.serverPort" -}}
-{{- $ws := .Values.workspace | default dict -}}
-{{- dig "config" "server" "port" 8080 $ws -}}
-{{- end -}}
-
-{{- define "workspace.metricsPort" -}}
-{{- $ws := .Values.workspace | default dict -}}
-{{- dig "config" "metrics" "port" 9100 $ws -}}
-{{- end -}}
-
-{{- define "workspace.serverRoot" -}}
-{{- dig "config" "server" "root_dir" "/workspace" (.Values.workspace | default dict) -}}
-{{- end -}}
-FOOTER
-  } > "$tpl_file"
-
-  echo "Generated $tpl_file"
-}
-
-###############################################################################
 # Main
 ###############################################################################
 echo "Generating from $REF ..."
@@ -233,5 +163,4 @@ generate_values_config
 echo "Updated values.yaml config block"
 generate_schema
 echo "Generated schema"
-generate_env_tpl
 echo "Done."
