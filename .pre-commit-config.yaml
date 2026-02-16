@@ -13,11 +13,21 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
 
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.36.2
+    hooks:
+      - id: check-metaschema
+        files: ^src/values\.schema\.json$
+
   - repo: local
     hooks:
       - id: helm-lint
         name: helm lint
-        entry: helm lint src/
+        entry: >-
+          bash -c
+          'helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts --force-update
+          && helm dependency build src/
+          && helm lint src/'
         language: system
         files: ^src/
         pass_filenames: false

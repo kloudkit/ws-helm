@@ -1,0 +1,34 @@
+---
+suite: Complete defaults without overrides
+release:
+  name: my-release
+  namespace: my-namespace
+tests:
+  - it: should render default Deployment
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchSnapshot:
+          path: spec
+
+  - it: should render default Service
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - matchSnapshot:
+          path: spec
+
+  - it: should render default PVC
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - matchSnapshot:
+          path: spec
+
+  - it: should create 3 documents by default
+    asserts:
+      - hasDocuments:
+          count: 3

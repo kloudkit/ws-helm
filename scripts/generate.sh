@@ -194,13 +194,13 @@ HEADER
 {{- range $vars }}
 {{- $val := dig .g .k nil $config }}
 {{- if not (kindIs "invalid" $val) }}
-- name: WS_{{ .g | upper }}_{{ .k | upper }}
+WS_{{ .g | upper }}_{{ .k | upper }}:
 {{- if kindIs "map" $val }}
-  valueFrom: {{- $val.valueFrom | toYaml | nindent 4 }}
+  {{- $val | toYaml | nindent 2 }}
 {{- else if and (kindIs "slice" $val) (hasKey . "d") }}
-  value: {{ $val | join .d | quote }}
+  {{ $val | join .d | quote }}
 {{- else }}
-  value: {{ $val | toString | quote }}
+  {{ $val | toString | quote }}
 {{- end }}
 {{- end }}
 {{- end }}

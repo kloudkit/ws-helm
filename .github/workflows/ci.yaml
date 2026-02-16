@@ -15,3 +15,29 @@ jobs:
 
       - name: 🧹 Lint
         uses: pre-commit/action@v3.0.1
+
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    if: github.actor != 'renovate[bot]'
+    needs:
+      - lint
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: ☸ Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: 🔌 Install plugin and repo
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest --version v1.0.2
+          helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts --force-update
+          helm dependency build src/
+
+      - name: 🧪 Run tests
+        run: |
+          helm unittest ./src

@@ -1,0 +1,129 @@
+---
+suite: Value overrides
+release:
+  name: my-release
+  namespace: my-namespace
+tests:
+  - it: should use alternate server port on Service
+    set:
+      workspace:
+        config:
+          server:
+            port: 3000
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 3000
+
+  - it: should set WS_SERVER_PORT env and update probes for alternate port
+    set:
+      workspace:
+        config:
+          server:
+            port: 3000
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_SERVER_PORT
+            value: "3000"
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 3000
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: 3000
+
+  - it: should use alternate root_dir for PVC mount and env
+    set:
+      workspace:
+        config:
+          server:
+            root_dir: /home/kloud
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /home/kloud
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].subPath
+          value: workspace
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_SERVER_ROOT_DIR
+            value: /home/kloud
+
+  - it: should not mount volumes when persistence is disabled
+    set:
+      workspace:
+        persistence:
+          enabled: false
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].volumeMounts
+      - isNull:
+          path: spec.template.spec.volumes
+
+  - it: should use custom image repository
+    set:
+      workspace:
+        image:
+          repository: custom/image
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: custom/image:v0.1.2
+
+  - it: should use custom image tag
+    set:
+      workspace:
+        image:
+          tag: latest
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/kloudkit/workspace:latest
+
+  - it: should set TZ env when timezone is configured
+    set:
+      workspace:
+        timezone: America/New_York
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TZ
+            value: America/New_York
+
+  - it: should support templated hostname
+    set:
+      workspace:
+        hostname: "{{ .Release.Name }}-ws"
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.hostname
+          value: my-release-ws

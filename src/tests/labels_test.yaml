@@ -1,0 +1,64 @@
+---
+suite: Labels and annotations
+tests:
+  - it: should apply global labels to all resources
+    set:
+      workspace:
+        labels:
+          team: platform
+    documentSelector:
+      path: metadata.labels["team"]
+      value: platform
+      matchMany: true
+    asserts:
+      - isNotNullOrEmpty:
+          path: metadata.labels["team"]
+
+  - it: should set owner and project labels on all resources
+    set:
+      workspace:
+        owner: alice
+        project: demo
+        ingress:
+          enabled: true
+    documentSelector:
+      path: metadata.labels["ws.kloudkit.com/owner"]
+      value: alice
+      matchMany: true
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            ws.kloudkit.com/owner: alice
+            ws.kloudkit.com/project: demo
+
+  - it: should merge owner, project, and custom labels
+    set:
+      workspace:
+        owner: alice
+        project: demo
+        labels:
+          team: platform
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            ws.kloudkit.com/owner: alice
+            ws.kloudkit.com/project: demo
+            team: platform
+
+  - it: should apply global annotations
+    set:
+      workspace:
+        annotations:
+          example.com/note: hello
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: metadata.annotations["example.com/note"]
+          value: hello

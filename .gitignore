@@ -1,1 +1,3 @@
-src/charts/*.tgz
+CLAUDE.md
+src/charts
+.common.values.yaml

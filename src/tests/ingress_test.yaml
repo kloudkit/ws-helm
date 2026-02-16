@@ -1,0 +1,66 @@
+---
+suite: Ingress configuration
+tests:
+  - it: should use custom ingress host
+    set:
+      workspace:
+        ingress:
+          enabled: true
+          host: workspace.example.com
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: workspace.example.com
+
+  - it: should set ingress className
+    set:
+      workspace:
+        ingress:
+          enabled: true
+          className: nginx
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should configure TLS
+    set:
+      workspace:
+        ingress:
+          enabled: true
+          host: workspace.example.com
+          tls:
+            - secretName: ws-tls
+              hosts:
+                - workspace.example.com
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - isSubset:
+          path: spec.tls[0]
+          content:
+            secretName: ws-tls
+            hosts:
+              - workspace.example.com
+
+  - it: should set ingress annotations
+    set:
+      workspace:
+        ingress:
+          enabled: true
+          annotations:
+            nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: metadata.annotations["nginx.ingress.kubernetes.io/proxy-body-size"]
+          value: 100m

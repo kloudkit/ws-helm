@@ -4,42 +4,51 @@
 controllers:
   main:
     revisionHistoryLimit: 3
+
     pod:
-      hostname: {{ dig "hostname" .Release.Name $ws | quote }}
+      {{- with (dig "hostname" nil $ws) }}
+      hostname: {{ tpl (toString .) $ | quote }}
+      {{- end }}
       {{- with (dig "nodeSelector" nil $ws) }}
       nodeSelector: {{ toYaml . | nindent 8 }}
       {{- end }}
+
       {{- with (dig "tolerations" nil $ws) }}
       tolerations: {{ toYaml . | nindent 8 }}
       {{- end }}
+
       {{- with (dig "affinity" nil $ws) }}
       affinity: {{ toYaml . | nindent 8 }}
       {{- end }}
+
     containers:
       main:
         image:
           repository: {{ dig "image" "repository" "ghcr.io/kloudkit/workspace" $ws }}
           tag: {{ dig "image" "tag" .Chart.AppVersion $ws | quote }}
           pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $ws }}
+
         env:
           {{- with (dig "timezone" nil $ws) }}
-          - name: TZ
-            value: {{ . | quote }}
+          TZ: {{ . | quote }}
           {{- end }}
           {{- include "workspace.wsEnv" . | nindent 10 }}
           {{- with (dig "env" nil $ws) }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
+
         {{- with (dig "envFrom" nil $ws) }}
         envFrom:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+
         probes:
           liveness:
             enabled: true
             type: HTTP
             path: /healthz
             port: {{ include "workspace.serverPort" . }}
+
           readiness:
             enabled: true
             type: HTTP
@@ -52,12 +61,12 @@ service:
     ports:
       http:
         port: {{ include "workspace.serverPort" . }}
-      {{- if (dig "metrics" "enabled" false $ws) }}
+      {{- if (dig "config" "metrics" "enable" false $ws) }}
       metrics:
         port: {{ include "workspace.metricsPort" . }}
       {{- end }}
 
-{{- if (dig "ingress" "enabled" true $ws) }}
+{{- if (dig "ingress" "enabled" false $ws) }}
 ingress:
   main:
     {{- with (dig "ingress" "className" nil $ws) }}
@@ -89,6 +98,9 @@ persistence:
     {{- end }}
     globalMounts:
       - path: {{ include "workspace.serverRoot" . }}
+        subPath: workspace
+      - path: /home/kloud/.cache/history
+        subPath: history
 {{- end }}
 {{- end }}
 

@@ -31,14 +31,8 @@
   #   # @default -- IfNotPresent
   #   pullPolicy: IfNotPresent
 
-  # -- Hostname assigned to the workspace pod
-  # @default -- Release.Name
+  # -- Hostname assigned to the workspace pod (supports Helm templating)
   # hostname: ~
-
-  # -- Prometheus metrics
-  # metrics:
-  #   # -- Enable the metrics sidecar port
-  #   enabled: false
 
   # -- Persistent storage for the workspace root directory
   # persistence:
@@ -56,7 +50,7 @@
   # -- Ingress configuration
   # ingress:
   #   # -- Create an Ingress resource
-  #   enabled: true
+  #   enabled: false
   #   # -- Ingress class name
   #   className: ~
   #   # -- Hostname for the ingress rule
@@ -68,7 +62,7 @@
   #   annotations: {}
 
   # -- Additional env vars passed directly to the container
-  # env: []
+  # env: {}
   # -- Additional envFrom sources (secrets/configmaps)
   # envFrom: []
 
