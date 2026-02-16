@@ -55,11 +55,94 @@
             "null"
           ]
         },
+        "port": {
+          "description": "Port on which the web server listens.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "root": {
+          "description": "Root directory for the workspace.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "metrics": {
           "type": "object",
           "properties": {
             "enabled": {
+              "description": "Enable Prometheus metrics exporter.",
               "type": "boolean"
+            },
+            "port": {
+              "description": "Metrics endpoint port.",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "interval": {
+              "description": "ServiceMonitor scrape interval.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "scrapeTimeout": {
+              "description": "ServiceMonitor scrape timeout.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "collectors": {
+              "description": "Comma-separated list of metric collectors to enable.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "domains": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "description": "Primary workspace access domain (generates exact + wildcard ingress hosts).",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "proxies": {
+              "description": "Additional proxy domain suffixes (contributes to WS_SERVER_PROXY_DOMAIN).",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -879,111 +962,12 @@
             },
             "metrics": {
               "type": "object",
-              "properties": {
-                "collectors": {
-                  "description": "Comma-separated list of metric collectors to enable.",
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  ]
-                },
-                "enable": {
-                  "description": "Enables the Prometheus metrics exporter.",
-                  "oneOf": [
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "port": {
-                  "description": "Port on which the metrics endpoint listens.",
-                  "oneOf": [
-                    {
-                      "type": "integer"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
+              "properties": {},
               "additionalProperties": false
             },
             "secrets": {
               "type": "object",
               "properties": {
-                "master_key": {
-                  "description": "Master encryption key for secrets vault.",
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
                 "master_key_file": {
                   "description": "Path to file containing the master encryption key.",
                   "oneOf": [
@@ -1036,81 +1020,6 @@
             "server": {
               "type": "object",
               "properties": {
-                "port": {
-                  "description": "Port on which the web server listens.",
-                  "oneOf": [
-                    {
-                      "type": "integer"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "proxy_domain": {
-                  "description": "Domain suffix used to expose server's forwarded ports.",
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  ]
-                },
-                "root_dir": {
-                  "description": "Root directory for the workspace.",
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "valueFrom": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "valueFrom"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
                 "ssl_cert": {
                   "description": "Path or inline PEM for the server certificate.",
                   "oneOf": [

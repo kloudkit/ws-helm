@@ -1,5 +1,7 @@
 ---
 suite: Ingress configuration
+templates:
+  - templates/workspace.yaml
 tests:
   - it: should set ingress className
     set:
@@ -36,14 +38,13 @@ tests:
             hosts:
               - workspace.example.com
 
-  - it: should create exact and wildcard ingress hosts from proxy_domain
+  - it: should create exact and wildcard ingress hosts from primary domain
     set:
       workspace:
         ingress:
           enabled: true
-        config:
-          server:
-            proxy_domain: ws.example.com
+        domains:
+          primary: ws.example.com
     documentSelector:
       path: kind
       value: Ingress
@@ -55,16 +56,15 @@ tests:
           path: spec.rules[1].host
           value: "*.ws.example.com"
 
-  - it: should create exact and wildcard hosts for multiple proxy domains
+  - it: should create exact and wildcard hosts for primary and proxy domains
     set:
       workspace:
         ingress:
           enabled: true
-        config:
-          server:
-            proxy_domain:
-              - primary.example.com
-              - secondary.example.com
+        domains:
+          primary: primary.example.com
+          proxies:
+            - secondary.example.com
     documentSelector:
       path: kind
       value: Ingress
@@ -87,9 +87,8 @@ tests:
       workspace:
         ingress:
           enabled: true
-        config:
-          server:
-            proxy_domain: "{{`{{port}}`}}-{{ .Release.Name }}.some-domain"
+        domains:
+          primary: "{{`{{port}}`}}-{{ .Release.Name }}.some-domain"
     documentSelector:
       path: kind
       value: Ingress

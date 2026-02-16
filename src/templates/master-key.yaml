@@ -1,0 +1,23 @@
+{{- $secrets := dig "secrets" dict (.Values.workspace | default dict) -}}
+{{- $masterKey := dig "masterKey" "" $secrets -}}
+{{- $autoGenerate := dig "autoGenerateMasterKey" false $secrets -}}
+{{- if or $masterKey $autoGenerate -}}
+  {{- $secretName := printf "%s-master-key" .Release.Name -}}
+  {{- $key := default (randBytes 64 | b64enc) (or ($masterKey | b64enc) (dig "data" "master-key" "" (lookup "v1" "Secret" .Release.Namespace $secretName))) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secretName }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version }}
+  {{- if not $masterKey }}
+    ws.kloudkit.com/auto-generated: "true"
+  {{- end }}
+type: Opaque
+data:
+  master-key: {{ $key }}
+{{- end }}

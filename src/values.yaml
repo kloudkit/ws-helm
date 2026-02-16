@@ -28,11 +28,75 @@
   #   # @default -- IfNotPresent
   #   pullPolicy: IfNotPresent
 
+  # -- Port on which the web server listens
+  # @default -- 8080
+  # port: 8080
+
+  # -- Root directory for the workspace
+  # @default -- /workspace
+  # root: /workspace
+
   # -- IANA timezone for the workspace (e.g. America/New_York)
   # timezone: ~
 
   # -- Hostname assigned to the workspace pod (supports Helm templating)
   # hostname: ~
+
+  # -- Domain configuration
+  # domains:
+  #   # -- Primary workspace access domain (generates exact + wildcard ingress hosts)
+  #   primary: ~
+  #   # -- Additional proxy domain suffixes (contributes to WS_SERVER_PROXY_DOMAIN)
+  #   proxies: []
+
+  # -- Metrics and monitoring configuration
+  # metrics:
+  #   # -- Enable Prometheus metrics exporter
+  #   enabled: false
+  #   # -- Metrics endpoint port
+  #   # @default -- 9100
+  #   port: 9100
+  #   # -- Comma-separated list of metric collectors to enable
+  #   collectors: []
+  #   # -- ServiceMonitor scrape interval
+  #   # @default -- 1m
+  #   interval: 1m
+  #   # -- ServiceMonitor scrape timeout
+  #   # @default -- 10s
+  #   scrapeTimeout: 10s
+
+  # -- Persistent storage for the workspace root directory
+  # persistence:
+  #   # -- Enable persistent volume claim
+  #   enabled: true
+  #   # -- Volume type
+  #   type: persistentVolumeClaim
+  #   # -- StorageClass name (~ uses the cluster default)
+  #   storageClass: ~
+  #   # -- Requested storage size
+  #   size: 25Gi
+  #   # -- PVC access mode
+  #   accessMode: ReadWriteOnce
+
+  # -- Ingress configuration
+  # When workspace.domains is set, ingress hosts are derived from it
+  # automatically (exact + wildcard for each domain).
+  # ingress:
+  #   # -- Create an Ingress resource
+  #   enabled: false
+  #   # -- Ingress class name
+  #   className: ~
+  #   # -- TLS configuration (list of secrets)
+  #   tls: []
+  #   # -- Additional ingress annotations
+  #   annotations: {}
+
+  # -- Master key for the workspace secrets vault
+  # secrets:
+  #   # -- User-provided master key. When set, takes priority over auto-generation.
+  #   masterKey: ""
+  #   # -- Auto-generate a 64-char cryptographic key on first install
+  #   autoGenerateMasterKey: false
 
   # -- Additional env vars passed directly to the container
   # env: {}
@@ -43,6 +107,7 @@
   # securityContext: {}
 
   # -- Workspace-native WS_* configuration (generated from env.reference.yaml)
+  # Some values (port, root, domains, metrics) are promoted to top-level keys above.
   # @generated:begin
   # config:
     # apt:
@@ -174,24 +239,7 @@
       # Maps to: WS_LOGGING_MAIN_FILE
       # main_file:
 
-    # metrics:
-      # -- Comma-separated list of metric collectors to enable.
-      # Maps to: WS_METRICS_COLLECTORS
-      # collectors: []
-
-      # -- Enables the Prometheus metrics exporter.
-      # Maps to: WS_METRICS_ENABLE
-      # enable:
-
-      # -- Port on which the metrics endpoint listens.
-      # Maps to: WS_METRICS_PORT
-      # port:
-
     # secrets:
-      # -- Master encryption key for secrets vault.
-      # Maps to: WS_SECRETS_MASTER_KEY
-      # master_key:
-
       # -- Path to file containing the master encryption key.
       # Maps to: WS_SECRETS_MASTER_KEY_FILE
       # master_key_file:
@@ -201,18 +249,6 @@
       # vault:
 
     # server:
-      # -- Port on which the web server listens.
-      # Maps to: WS_SERVER_PORT
-      # port:
-
-      # -- Domain suffix used to expose server's forwarded ports.
-      # Maps to: WS_SERVER_PROXY_DOMAIN
-      # proxy_domain: []
-
-      # -- Root directory for the workspace.
-      # Maps to: WS_SERVER_ROOT_DIR
-      # root_dir:
-
       # -- Path or inline PEM for the server certificate.
       # Maps to: WS_SERVER_SSL_CERT
       # ssl_cert:
@@ -295,30 +331,6 @@
       # -- Enables built-in `oh-my-zsh` plugins.
       # Maps to: WS_ZSH_PLUGINS
       # plugins:
+
+
   # @generated:end
-
-  # -- Persistent storage for the workspace root directory
-  # persistence:
-  #   # -- Enable persistent volume claim
-  #   enabled: true
-  #   # -- Volume type
-  #   type: persistentVolumeClaim
-  #   # -- StorageClass name (~ uses the cluster default)
-  #   storageClass: ~
-  #   # -- Requested storage size
-  #   size: 25Gi
-  #   # -- PVC access mode
-  #   accessMode: ReadWriteOnce
-
-  # -- Ingress configuration
-  # When config.server.proxy_domain is set, ingress hosts are derived from it
-  # automatically (exact + wildcard for each domain).
-  # ingress:
-  #   # -- Create an Ingress resource
-  #   enabled: false
-  #   # -- Ingress class name
-  #   className: ~
-  #   # -- TLS configuration (list of secrets)
-  #   tls: []
-  #   # -- Additional ingress annotations
-  #   annotations: {}

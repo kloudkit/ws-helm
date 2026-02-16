@@ -1,10 +1,11 @@
 ---
 suite: Metrics configuration
+templates:
+  - templates/workspace.yaml
 set:
   workspace:
-    config:
-      metrics:
-        enable: true
+    metrics:
+      enabled: true
 tests:
   - it: should add metrics port and env when enabled
     documentSelector:
@@ -35,10 +36,9 @@ tests:
   - it: should use custom metrics port
     set:
       workspace:
-        config:
-          metrics:
-            enable: true
-            port: 9200
+        metrics:
+          enabled: true
+          port: 9200
     documentSelector:
       path: kind
       value: Service
@@ -50,10 +50,9 @@ tests:
   - it: should set WS_METRICS_PORT env for custom port
     set:
       workspace:
-        config:
-          metrics:
-            enable: true
-            port: 9200
+        metrics:
+          enabled: true
+          port: 9200
     documentSelector:
       path: kind
       value: Deployment
@@ -67,12 +66,11 @@ tests:
   - it: should set WS_METRICS_COLLECTORS env
     set:
       workspace:
-        config:
-          metrics:
-            enable: true
-            collectors:
-              - cpu
-              - memory
+        metrics:
+          enabled: true
+          collectors:
+            - cpu
+            - memory
     documentSelector:
       path: kind
       value: Deployment
@@ -106,3 +104,24 @@ tests:
         containsDocument:
           kind: ServiceMonitor
           apiVersion: monitoring.coreos.com/v1
+
+  - it: should use custom ServiceMonitor interval and scrapeTimeout
+    set:
+      workspace:
+        metrics:
+          enabled: true
+          interval: 30s
+          scrapeTimeout: 5s
+    capabilities:
+      apiVersions:
+        - monitoring.coreos.com/v1
+    documentSelector:
+      path: kind
+      value: ServiceMonitor
+    asserts:
+      - equal:
+          path: spec.endpoints[0].interval
+          value: 30s
+      - equal:
+          path: spec.endpoints[0].scrapeTimeout
+          value: 5s

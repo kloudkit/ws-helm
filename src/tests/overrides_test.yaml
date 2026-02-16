@@ -1,5 +1,7 @@
 ---
 suite: Value overrides
+templates:
+  - templates/workspace.yaml
 release:
   name: my-release
   namespace: my-namespace
@@ -7,9 +9,7 @@ tests:
   - it: should use alternate server port on Service
     set:
       workspace:
-        config:
-          server:
-            port: 3000
+        port: 3000
     documentSelector:
       path: kind
       value: Service
@@ -21,9 +21,7 @@ tests:
   - it: should set WS_SERVER_PORT env and update probes for alternate port
     set:
       workspace:
-        config:
-          server:
-            port: 3000
+        port: 3000
     documentSelector:
       path: kind
       value: Deployment
@@ -40,12 +38,10 @@ tests:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.port
           value: 3000
 
-  - it: should use alternate root_dir for PVC mount and env
+  - it: should use alternate root for PVC mount and env
     set:
       workspace:
-        config:
-          server:
-            root_dir: /home/kloud
+        root: /home/kloud
     documentSelector:
       path: kind
       value: Deployment
@@ -116,14 +112,13 @@ tests:
             name: TZ
             value: America/New_York
 
-  - it: should set WS_SERVER_PROXY_DOMAIN env from proxy_domain config
+  - it: should set WS_SERVER_PROXY_DOMAIN env from domains config
     set:
       workspace:
-        config:
-          server:
-            proxy_domain:
-              - primary.example.com
-              - secondary.example.com
+        domains:
+          primary: primary.example.com
+          proxies:
+            - secondary.example.com
     documentSelector:
       path: kind
       value: Deployment

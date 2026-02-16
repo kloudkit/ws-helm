@@ -1,15 +1,19 @@
 {{- define "workspace.hardcodedValues" -}}
-{{- $ws := .Values.workspace | default dict -}}
+  {{- $ws := .Values.workspace | default dict -}}
+  {{- $port := dig "port" 8080 $ws -}}
+  {{- $metricsEnabled := dig "metrics" "enabled" false $ws -}}
+  {{- $metricsPort := dig "metrics" "port" 9100 $ws -}}
+  {{- $allDomains := include "workspace.proxyDomains" . | fromJsonArray -}}
 global:
   {{- $labels := dict }}
   {{- with (dig "owner" nil $ws) }}
-  {{- $_ := set $labels "ws.kloudkit.com/owner" (toString .) }}
+    {{- $_ := set $labels "ws.kloudkit.com/owner" (toString .) }}
   {{- end }}
   {{- with (dig "project" nil $ws) }}
-  {{- $_ := set $labels "ws.kloudkit.com/project" (toString .) }}
+    {{- $_ := set $labels "ws.kloudkit.com/project" (toString .) }}
   {{- end }}
   {{- with (dig "labels" nil $ws) }}
-  {{- $_ := mergeOverwrite $labels . }}
+    {{- $_ := mergeOverwrite $labels . }}
   {{- end }}
   labels: {{ toYaml $labels | nindent 4 }}
   annotations: {{ toYaml (dig "annotations" (dict) $ws) | nindent 4 }}
@@ -19,21 +23,21 @@ controllers:
     revisionHistoryLimit: 3
 
     pod:
-      {{- with (dig "hostname" nil $ws) }}
+  {{- with (dig "hostname" nil $ws) }}
       hostname: {{ tpl (toString .) $ | quote }}
-      {{- end }}
+  {{- end }}
 
-      {{- with (dig "nodeSelector" nil $ws) }}
+  {{- with (dig "nodeSelector" nil $ws) }}
       nodeSelector: {{ toYaml . | nindent 8 }}
-      {{- end }}
+  {{- end }}
 
-      {{- with (dig "tolerations" nil $ws) }}
+  {{- with (dig "tolerations" nil $ws) }}
       tolerations: {{ toYaml . | nindent 8 }}
-      {{- end }}
+  {{- end }}
 
-      {{- with (dig "affinity" nil $ws) }}
+  {{- with (dig "affinity" nil $ws) }}
       affinity: {{ toYaml . | nindent 8 }}
-      {{- end }}
+  {{- end }}
 
     containers:
       main:
@@ -43,50 +47,79 @@ controllers:
           pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $ws }}
 
         env:
-          {{- with (dig "timezone" nil $ws) }}
+  {{- with (dig "timezone" nil $ws) }}
           TZ: {{ . | quote }}
-          {{- end }}
+  {{- end }}
+
+  {{- with (dig "port" nil $ws) }}
+          WS_SERVER_PORT: {{ . | quote }}
+  {{- end }}
+
+  {{- with (dig "root" nil $ws) }}
+          WS_SERVER_ROOT_DIR: {{ . | quote }}
+  {{- end }}
+
+  {{- if $metricsEnabled }}
+          WS_METRICS_ENABLE: "true"
+          WS_METRICS_PORT: {{ $metricsPort | quote }}
+    {{- with (dig "metrics" "collectors" nil $ws) }}
+          WS_METRICS_COLLECTORS: {{ . | join "," | quote }}
+    {{- end }}
+  {{- end }}
+
+  {{- if $allDomains }}
+          WS_SERVER_PROXY_DOMAIN: {{ $allDomains | join " " | quote }}
+  {{- end }}
+
+  {{- $secrets := dig "secrets" dict $ws }}
+  {{- if or (dig "masterKey" "" $secrets) (dig "autoGenerateMasterKey" false $secrets) }}
+          WS_SECRETS_MASTER_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: {{ printf "%s-master-key" $.Release.Name }}
+                key: master-key
+  {{- end }}
 
           {{- include "workspace.wsEnv" . | nindent 10 }}
 
-          {{- with (dig "env" nil $ws) }}
+  {{- with (dig "env" nil $ws) }}
           {{- toYaml . | nindent 10 }}
-          {{- end }}
+  {{- end }}
 
-        {{- with (dig "envFrom" nil $ws) }}
+  {{- with (dig "envFrom" nil $ws) }}
         envFrom:
           {{- toYaml . | nindent 10 }}
-        {{- end }}
+  {{- end }}
 
-        {{- with (dig "securityContext" nil $ws) }}
+  {{- with (dig "securityContext" nil $ws) }}
         securityContext: {{ toYaml . | nindent 10 }}
-        {{- end }}
+  {{- end }}
 
         probes:
           liveness:
             enabled: true
             type: HTTP
             path: /healthz
-            port: {{ include "workspace.serverPort" . }}
+            port: {{ $port }}
 
           readiness:
             enabled: true
             type: HTTP
             path: /healthz
-            port: {{ include "workspace.serverPort" . }}
+            port: {{ $port }}
 
 service:
   main:
     controller: main
     ports:
       http:
-        port: {{ include "workspace.serverPort" . }}
-      {{- if (dig "config" "metrics" "enable" false $ws) }}
+        port: {{ $port }}
+  {{- if $metricsEnabled }}
       metrics:
-        port: {{ include "workspace.metricsPort" . }}
-      {{- end }}
+        port: {{ $metricsPort }}
+  {{- end }}
 
-{{- if (dig "config" "metrics" "enable" false $ws) }}
+  {{- if $metricsEnabled }}
 serviceMonitor:
   main:
     enabled: true
@@ -94,27 +127,20 @@ serviceMonitor:
       - port: metrics
         scheme: http
         path: /
-        interval: 1m
-        scrapeTimeout: 10s
-{{- end }}
+        interval: {{ dig "metrics" "interval" "1m" $ws }}
+        scrapeTimeout: {{ dig "metrics" "scrapeTimeout" "10s" $ws }}
+  {{- end }}
 
-{{- if (dig "ingress" "enabled" false $ws) }}
+  {{- if (dig "ingress" "enabled" false $ws) }}
 ingress:
   main:
     {{- with (dig "ingress" "className" nil $ws) }}
     className: {{ . }}
     {{- end }}
     hosts:
-      {{- $proxyDomains := dig "config" "server" "proxy_domain" nil $ws }}
-      {{- if $proxyDomains }}
-        {{- if kindIs "string" $proxyDomains }}
-          {{- $proxyDomains = list $proxyDomains }}
-        {{- end }}
-        {{- range $proxyDomains }}
-          {{- $raw := toString . }}
-          {{- $raw = replace (printf "%s%s%s%s%s" "{{" "`" "{{port}}" "`" "}}") "__PORT__" $raw }}
-          {{- $raw = replace (printf "%s%s" "{{" "port}}") "__PORT__" $raw }}
-          {{- $host := regexReplaceAll "__PORT__-?" (tpl $raw $) "" }}
+    {{- if $allDomains }}
+      {{- range $allDomains }}
+        {{- $host := include "workspace.stripPort" (dict "raw" (toString .) "ctx" $) }}
       - host: {{ $host | quote }}
         paths: &defaultPaths
           - path: /
@@ -123,17 +149,17 @@ ingress:
               port: http
       - host: {{ printf "*.%s" $host | quote }}
         paths: *defaultPaths
-        {{- end }}
       {{- end }}
+    {{- end }}
     {{- with (dig "ingress" "tls" nil $ws) }}
     tls: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- with (dig "ingress" "annotations" nil $ws) }}
     annotations: {{ toYaml . | nindent 6 }}
     {{- end }}
-{{- end }}
+  {{- end }}
 
-{{- if (dig "persistence" "enabled" true $ws) }}
+  {{- if (dig "persistence" "enabled" true $ws) }}
 persistence:
   workspace:
     type: {{ dig "persistence" "type" "persistentVolumeClaim" $ws }}
@@ -143,11 +169,11 @@ persistence:
     storageClassName: {{ . }}
     {{- end }}
     globalMounts:
-      - path: {{ include "workspace.serverRoot" . }}
+      - path: {{ dig "root" "/workspace" $ws }}
         subPath: workspace
       - path: /home/kloud/.cache/history
         subPath: history
-{{- end }}
+  {{- end }}
 {{- end }}
 
 {{- $ctx := deepCopy . -}}

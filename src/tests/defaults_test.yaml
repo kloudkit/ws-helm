@@ -1,5 +1,7 @@
 ---
 suite: Complete defaults without overrides
+templates:
+  - templates/workspace.yaml
 release:
   name: my-release
   namespace: my-namespace

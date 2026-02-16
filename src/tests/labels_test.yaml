@@ -1,5 +1,7 @@
 ---
 suite: Labels and annotations
+templates:
+  - templates/workspace.yaml
 tests:
   - it: should apply global labels to all resources
     set:

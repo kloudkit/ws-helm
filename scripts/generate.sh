@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,6 +21,9 @@ done
 # Pre-extract all data as JSON for fast access (single yq call)
 REF_JSON=$(yq -r '.' "$REF")
 
+# Properties promoted to top-level workspace.* keys — excluded from config generation
+PROMOTED='["server.port", "server.root_dir", "server.proxy_domain", "metrics.enable", "metrics.port", "metrics.collectors", "secrets.master_key"]'
+
 ###############################################################################
 # 1. Generate values.yaml workspace.config block
 ###############################################################################
@@ -31,15 +35,21 @@ generate_values_config() {
 
   echo "  # config:" > "$tmp_config"
 
-  echo "$REF_JSON" | jq -r '
+  echo "$REF_JSON" | jq -r --argjson promoted "$PROMOTED" '
     .envs | to_entries[] | .key as $group |
+    # Skip groups where all properties are promoted
+    (.value.properties | to_entries | map(
+      "\($group).\(.key)" as $fk | select($promoted | index($fk) | not)
+    )) as $non_promoted |
+    if ($non_promoted | length) == 0 then empty else
     "    # \($group):",
-    (.value.properties | to_entries[] |
+    ($non_promoted[] |
       .key as $prop | .value as $v |
       ((($v.longDescription // "") + " " + ($v.example // "") + " " + ($v.description // ""))
         | test("space-delimited|semicolon-delimited|comma-delimited|comma-separated"; "i")) as $is_delimited |
       (if $is_delimited then " []" else "" end) as $suffix |
       "      # -- \($v.description)\n      # Maps to: WS_\($group | ascii_upcase)_\($prop | ascii_upcase)\n      # \($prop):\($suffix)\n")
+    end
   ' >> "$tmp_config"
 
   # Splice into values.yaml between markers
@@ -61,7 +71,7 @@ generate_values_config() {
 generate_schema() {
   local schema_file="$CHART_DIR/values.schema.json"
 
-  echo "$REF_JSON" | jq '
+  echo "$REF_JSON" | jq --argjson promoted "$PROMOTED" '
     # Build config properties from envs
     def prop_schema:
       .type as $t |
@@ -89,7 +99,9 @@ generate_schema() {
 
     .envs | to_entries | map(
       .key as $group |
-      .value.properties | to_entries | map({key: .key, value: (.value | prop_schema)}) | from_entries |
+      .value.properties | to_entries |
+      map(select(("\($group).\(.key)" as $fk | $promoted | index($fk) | not))) |
+      map({key: .key, value: (.value | prop_schema)}) | from_entries |
       {($group): { "type": "object", "properties": ., "additionalProperties": false }}
     ) | add // {} |
 
@@ -125,9 +137,60 @@ generate_schema() {
             },
             "image": { "type": "object" },
             "hostname": { "type": ["string", "null"] },
+            "port": {
+              "description": "Port on which the web server listens.",
+              "type": ["integer", "null"]
+            },
+            "root": {
+              "description": "Root directory for the workspace.",
+              "type": ["string", "null"]
+            },
             "metrics": {
               "type": "object",
-              "properties": { "enabled": { "type": "boolean" } },
+              "properties": {
+                "enabled": {
+                  "description": "Enable Prometheus metrics exporter.",
+                  "type": "boolean"
+                },
+                "port": {
+                  "description": "Metrics endpoint port.",
+                  "type": ["integer", "null"]
+                },
+                "interval": {
+                  "description": "ServiceMonitor scrape interval.",
+                  "type": ["string", "null"]
+                },
+                "scrapeTimeout": {
+                  "description": "ServiceMonitor scrape timeout.",
+                  "type": ["string", "null"]
+                },
+                "collectors": {
+                  "description": "Comma-separated list of metric collectors to enable.",
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" } },
+                    { "type": "null" }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "domains": {
+              "type": "object",
+              "properties": {
+                "primary": {
+                  "description": "Primary workspace access domain (generates exact + wildcard ingress hosts).",
+                  "type": ["string", "null"]
+                },
+                "proxies": {
+                  "description": "Additional proxy domain suffixes (contributes to WS_SERVER_PROXY_DOMAIN).",
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" } },
+                    { "type": "null" }
+                  ]
+                }
+              },
               "additionalProperties": false
             },
             "persistence": { "type": "object" },
