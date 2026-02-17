@@ -20,9 +20,10 @@ tests:
   - it: should configure TLS
     set:
       workspace:
+        domains:
+          primary: workspace.example.com
         ingress:
           enabled: true
-          host: workspace.example.com
           tls:
             - secretName: ws-tls
               hosts:
@@ -49,12 +50,8 @@ tests:
       path: kind
       value: Ingress
     asserts:
-      - equal:
-          path: spec.rules[0].host
-          value: ws.example.com
-      - equal:
-          path: spec.rules[1].host
-          value: "*.ws.example.com"
+      - matchSnapshot:
+          path: spec.rules
 
   - it: should create exact and wildcard hosts for primary and proxy domains
     set:
@@ -69,18 +66,8 @@ tests:
       path: kind
       value: Ingress
     asserts:
-      - equal:
-          path: spec.rules[0].host
-          value: primary.example.com
-      - equal:
-          path: spec.rules[1].host
-          value: "*.primary.example.com"
-      - equal:
-          path: spec.rules[2].host
-          value: secondary.example.com
-      - equal:
-          path: spec.rules[3].host
-          value: "*.secondary.example.com"
+      - matchSnapshot:
+          path: spec.rules
 
   - it: should extract base domain and wildcard from port-templated proxy domain
     set:

@@ -1,0 +1,66 @@
+---
+suite: Scheduling constraints
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: should apply nodeSelector to pod
+    set:
+      workspace:
+        nodeSelector:
+          disktype: ssd
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+
+  - it: should apply tolerations to pod
+    set:
+      workspace:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: workspace
+            effect: NoSchedule
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.tolerations
+          value:
+            - key: dedicated
+              operator: Equal
+              value: workspace
+              effect: NoSchedule
+
+  - it: should apply affinity to pod
+    set:
+      workspace:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/arch
+                      operator: In
+                      values:
+                        - amd64
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/arch
+                        operator: In
+                        values:
+                          - amd64

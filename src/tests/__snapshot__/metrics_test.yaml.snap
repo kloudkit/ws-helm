@@ -1,0 +1,7 @@
+should create ServiceMonitor when metrics enabled:
+  1: |
+    - interval: 1m
+      path: /
+      port: metrics
+      scheme: http
+      scrapeTimeout: 10s

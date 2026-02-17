@@ -1,5 +1,5 @@
 ---
-suite: Complete defaults without overrides
+suite: Defaults without overrides
 templates:
   - templates/workspace.yaml
 release:

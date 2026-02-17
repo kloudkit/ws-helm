@@ -95,6 +95,10 @@ controllers:
         securityContext: {{ toYaml . | nindent 10 }}
   {{- end }}
 
+  {{- with (dig "resources" nil $ws) }}
+        resources: {{ toYaml . | nindent 10 }}
+  {{- end }}
+
         probes:
           liveness:
             enabled: true
@@ -166,13 +170,15 @@ persistence:
     accessMode: {{ dig "persistence" "accessMode" "ReadWriteOnce" $ws }}
     size: {{ dig "persistence" "size" "25Gi" $ws }}
     {{- with (dig "persistence" "storageClass" nil $ws) }}
-    storageClassName: {{ . }}
+    storageClass: {{ . }}
     {{- end }}
     globalMounts:
       - path: {{ dig "root" "/workspace" $ws }}
         subPath: workspace
-      - path: /home/kloud/.cache/history
-        subPath: history
+    {{- range (dig "persistence" "additionalPaths" list $ws) }}
+      - path: {{ .path }}
+        subPath: {{ .name }}
+    {{- end }}
   {{- end }}
 {{- end }}
 

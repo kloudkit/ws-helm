@@ -91,12 +91,8 @@ tests:
     asserts:
       - isNotNull:
           path: spec.selector.matchLabels
-      - equal:
-          path: spec.endpoints[0].port
-          value: metrics
-      - equal:
-          path: spec.endpoints[0].path
-          value: /
+      - matchSnapshot:
+          path: spec.endpoints
 
   - it: should not create ServiceMonitor when CRD not available
     asserts:

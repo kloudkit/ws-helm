@@ -77,6 +77,10 @@
   #   size: 25Gi
   #   # -- PVC access mode
   #   accessMode: ReadWriteOnce
+  #   # -- Additional paths mounted from the same PVC (each gets its own subPath)
+  #   additionalPaths: []
+  #     # - name: history
+  #     #   path: /home/kloud/.cache/history
 
   # -- Ingress configuration
   # When workspace.domains is set, ingress hosts are derived from it
@@ -105,6 +109,15 @@
 
   # -- Security context for the main container
   # securityContext: {}
+
+  # -- Container resource requests and limits
+  # resources:
+  #   requests:
+  #     cpu: ~
+  #     memory: ~
+  #   limits:
+  #     cpu: ~
+  #     memory: ~
 
   # -- Workspace-native WS_* configuration (generated from env.reference.yaml)
   # Some values (port, root, domains, metrics) are promoted to top-level keys above.

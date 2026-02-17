@@ -1,0 +1,5 @@
+should set container securityContext:
+  1: |
+    allowPrivilegeEscalation: false
+    runAsGroup: 1000
+    runAsUser: 1000

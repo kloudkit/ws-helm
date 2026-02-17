@@ -43,9 +43,6 @@ should render default Deployment:
               - mountPath: /workspace
                 name: workspace
                 subPath: workspace
-              - mountPath: /home/kloud/.cache/history
-                name: workspace
-                subPath: history
         dnsPolicy: ClusterFirst
         enableServiceLinks: false
         hostIPC: false

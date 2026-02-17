@@ -1,0 +1,141 @@
+---
+suite: Environment variables and config pipeline
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: should pass custom env vars through
+    set:
+      workspace:
+        env:
+          MY_VAR: hello
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: MY_VAR
+            value: hello
+
+  - it: should inject envFrom configMapRef
+    set:
+      workspace:
+        envFrom:
+          - configMapRef:
+              name: my-cm
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: my-cm
+
+  - it: should map config scalar to WS_* env var
+    set:
+      workspace:
+        config:
+          auth:
+            password: s3cret
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_AUTH_PASSWORD
+            value: s3cret
+
+  - it: should map config boolean to WS_* env var
+    set:
+      workspace:
+        config:
+          docker:
+            enable_client: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_DOCKER_ENABLE_CLIENT
+            value: "true"
+
+  - it: should join space-delimited config array
+    set:
+      workspace:
+        config:
+          apt:
+            additional_packages:
+              - cmake
+              - nano
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_APT_ADDITIONAL_PACKAGES
+            value: cmake nano
+
+  - it: should join semicolon-delimited config array
+    set:
+      workspace:
+        config:
+          apt:
+            additional_repos:
+              - deb http://one.test trixie main
+              - deb http://two.test trixie main
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_APT_ADDITIONAL_REPOS
+            value: deb http://one.test trixie main;deb http://two.test trixie main
+
+  - it: should passthrough valueFrom in config
+    set:
+      workspace:
+        config:
+          auth:
+            password:
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: pw
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: pw
+
+  - it: should not emit promoted keys from wsEnv
+    set:
+      workspace:
+        port: 3000
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_SERVER_PORT
+            value: "3000"
+          count: 1

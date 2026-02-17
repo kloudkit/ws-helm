@@ -2,9 +2,6 @@
 suite: Value overrides
 templates:
   - templates/workspace.yaml
-release:
-  name: my-release
-  namespace: my-namespace
 tests:
   - it: should use alternate server port on Service
     set:
@@ -140,15 +137,8 @@ tests:
       path: kind
       value: Deployment
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext.runAsUser
-          value: 1000
-      - equal:
-          path: spec.template.spec.containers[0].securityContext.runAsGroup
-          value: 1000
-      - equal:
-          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
-          value: false
+      - matchSnapshot:
+          path: spec.template.spec.containers[0].securityContext
 
   - it: should support templated hostname
     set:
@@ -160,4 +150,79 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.hostname
-          value: my-release-ws
+          value: RELEASE-NAME-ws
+
+  - it: should set custom storageClass on PVC
+    set:
+      workspace:
+        persistence:
+          storageClass: fast-ssd
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.storageClassName
+          value: fast-ssd
+
+  - it: should set custom size on PVC
+    set:
+      workspace:
+        persistence:
+          size: 100Gi
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.resources.requests.storage
+          value: 100Gi
+
+  - it: should set custom accessMode on PVC
+    set:
+      workspace:
+        persistence:
+          accessMode: ReadWriteMany
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.accessModes
+          value:
+            - ReadWriteMany
+
+  - it: should mount additional paths from the same PVC
+    set:
+      workspace:
+        persistence:
+          additionalPaths:
+            - name: ssh
+              path: /home/kloud/.ssh
+            - name: config
+              path: /home/kloud/.config
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /home/kloud/.ssh
+            name: workspace
+            subPath: ssh
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /home/kloud/.config
+            name: workspace
+            subPath: config
+
+  - it: should only have default volumeMounts when no additionalMounts
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 1

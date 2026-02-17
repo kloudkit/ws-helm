@@ -1,0 +1,72 @@
+---
+suite: Container resources
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: should not set resources by default
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].resources
+
+  - it: should set requests only
+    set:
+      workspace:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+  - it: should set limits only
+    set:
+      workspace:
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+
+  - it: should set both requests and limits
+    set:
+      workspace:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi

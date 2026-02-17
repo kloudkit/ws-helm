@@ -16,12 +16,12 @@
     {{- if not (kindIs "map" $groupVals) }}{{- continue }}{{- end }}
     {{- range $key, $val := $groupVals }}
       {{- if kindIs "invalid" $val }}{{- continue }}{{- end }}
-      {{- $fullKey := printf "%s.%s" $group $key }}
+      {{- $fullKey := printf "%s.%s" $group $key -}}
       {{- if has $fullKey $promoted }}{{- continue }}{{- end }}
-      {{- $delimiter := index $delims $fullKey | default " " }}
+      {{- $delimiter := index $delims $fullKey | default " " -}}
 WS_{{ $group | upper }}_{{ $key | upper }}:
       {{- if kindIs "map" $val }}
-  {{- $val | toYaml | nindent 2 }}
+{{ $val | toYaml | nindent 8 }}
       {{- else if kindIs "slice" $val }}
   {{ $val | join $delimiter | quote }}
       {{- else }}
