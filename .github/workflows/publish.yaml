@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
   pages: write
   id-token: write
 
@@ -70,3 +71,9 @@ jobs:
 
       - name: ⛅ Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
+      - name: 🔐 Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: 📦 Push to GHCR (OCI)
+        run: helm push .cr-release-packages/ws-helm-*.tgz oci://ghcr.io/kloudkit
