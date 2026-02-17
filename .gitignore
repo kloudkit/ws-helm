@@ -1,4 +1,5 @@
 .common.values.yaml
+.cr-release-packages
 CLAUDE.md
 dist/
 src/charts
