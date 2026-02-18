@@ -4,7 +4,7 @@
   {{- $promoted := list
   "server.port" "server.root_dir" "server.proxy_domain"
   "metrics.enable" "metrics.port" "metrics.collectors"
-  "secrets.master_key"
+  "secrets.master_key_file"
   -}}
 
   {{- $delims := dict

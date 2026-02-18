@@ -10,6 +10,11 @@
   # -- Project this workspace belongs to (applied as a global label)
   # project: ~
 
+  # -- Firewall policy label applied to all resources (used by external NetworkPolicies).
+  # -- Currently recognized value: "isolated" (deny all inter-workspace ingress).
+  # -- Absent or null means no isolation — governed by namespace-level policies.
+  # firewall: ~
+
   # -- Additional labels applied to all resources
   # labels: {}
 
@@ -71,6 +76,8 @@
   #   enabled: true
   #   # -- Volume type
   #   type: persistentVolumeClaim
+  #   # -- Use an existing PVC instead of creating a new one
+  #   existingClaim: ~
   #   # -- StorageClass name (~ uses the cluster default)
   #   storageClass: ~
   #   # -- Requested storage size
@@ -81,6 +88,12 @@
   #   additionalPaths: []
   #     # - name: history
   #     #   path: /home/kloud/.cache/history
+  #   # -- Additional bjw-s persistence entries (emptyDir, configMap, secret, etc.)
+  #   extra: {}
+  #     # cache:
+  #     #   type: emptyDir
+  #     #   globalMounts:
+  #     #     - path: /cache
 
   # -- Ingress configuration
   # When workspace.domains is set, ingress hosts are derived from it
@@ -253,9 +266,9 @@
       # main_file:
 
     # secrets:
-      # -- Path to file containing the master encryption key.
-      # Maps to: WS_SECRETS_MASTER_KEY_FILE
-      # master_key_file:
+      # -- Master encryption key for secrets vault.
+      # Maps to: WS_SECRETS_MASTER_KEY
+      # master_key:
 
       # -- Path to the secrets vault file.
       # Maps to: WS_SECRETS_VAULT

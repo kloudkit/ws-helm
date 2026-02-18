@@ -52,6 +52,19 @@ tests:
             ws.kloudkit.com/project: demo
             team: platform
 
+  - it: should set firewall label when isolated
+    set:
+      workspace:
+        firewall: isolated
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            ws.kloudkit.com/firewall: isolated
+
   - it: should apply global annotations
     set:
       workspace:

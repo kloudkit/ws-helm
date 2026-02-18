@@ -19,6 +19,17 @@
             "null"
           ]
         },
+        "firewall": {
+          "description": "Firewall policy label applied to all resources (used by external NetworkPolicies). Currently recognized value: isolated.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "isolated",
+            null
+          ]
+        },
         "labels": {
           "description": "Additional labels applied to all chart resources.",
           "type": [
@@ -179,6 +190,13 @@
               "description": "Volume type.",
               "type": "string"
             },
+            "existingClaim": {
+              "description": "Use an existing PVC instead of creating a new one.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "storageClass": {
               "description": "StorageClass name (null uses the cluster default).",
               "type": [
@@ -211,6 +229,13 @@
                   "name",
                   "path"
                 ]
+              }
+            },
+            "extra": {
+              "description": "Additional bjw-s persistence entries (emptyDir, configMap, secret, etc.) rendered alongside the main workspace PVC.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
               }
             }
           },
@@ -1136,8 +1161,8 @@
             "secrets": {
               "type": "object",
               "properties": {
-                "master_key_file": {
-                  "description": "Path to file containing the master encryption key.",
+                "master_key": {
+                  "description": "Master encryption key for secrets vault.",
                   "oneOf": [
                     {
                       "type": "string"
@@ -1683,12 +1708,6 @@
         },
         "initContainers": {
           "type": "object"
-        },
-        "extraVolumes": {
-          "type": "array"
-        },
-        "extraVolumeMounts": {
-          "type": "array"
         },
         "nodeSelector": {
           "type": "object"

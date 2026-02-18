@@ -1,0 +1,174 @@
+---
+suite: Persistence configuration
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: should not mount volumes when persistence is disabled
+    set:
+      workspace:
+        persistence:
+          enabled: false
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].volumeMounts
+      - isNull:
+          path: spec.template.spec.volumes
+
+  - it: should use existing PVC when existingClaim is set
+    set:
+      workspace:
+        persistence:
+          existingClaim: my-existing-pvc
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: workspace
+            persistentVolumeClaim:
+              claimName: my-existing-pvc
+
+  - it: should not create a PVC when existingClaim is set
+    set:
+      workspace:
+        persistence:
+          existingClaim: my-existing-pvc
+    asserts:
+      - not: true
+        containsDocument:
+          kind: PersistentVolumeClaim
+          apiVersion: v1
+
+  - it: should set custom storageClass on PVC
+    set:
+      workspace:
+        persistence:
+          storageClass: fast-ssd
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.storageClassName
+          value: fast-ssd
+
+  - it: should set custom size on PVC
+    set:
+      workspace:
+        persistence:
+          size: 100Gi
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.resources.requests.storage
+          value: 100Gi
+
+  - it: should set custom accessMode on PVC
+    set:
+      workspace:
+        persistence:
+          accessMode: ReadWriteMany
+    documentSelector:
+      path: kind
+      value: PersistentVolumeClaim
+    asserts:
+      - equal:
+          path: spec.accessModes
+          value:
+            - ReadWriteMany
+
+  - it: should mount additional paths from the same PVC
+    set:
+      workspace:
+        persistence:
+          additionalPaths:
+            - name: ssh
+              path: /home/kloud/.ssh
+            - name: config
+              path: /home/kloud/.config
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /home/kloud/.ssh
+            name: workspace
+            subPath: ssh
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /home/kloud/.config
+            name: workspace
+            subPath: config
+
+  - it: should only have default volumeMounts when no additionalMounts
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 1
+
+  - it: should render extra emptyDir volume and mount
+    set:
+      workspace:
+        persistence:
+          extra:
+            cache:
+              type: emptyDir
+              globalMounts:
+                - path: /cache
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /cache
+            name: cache
+
+  - it: should render extra volumes when main persistence is disabled
+    set:
+      workspace:
+        persistence:
+          enabled: false
+          extra:
+            cache:
+              type: emptyDir
+              globalMounts:
+                - path: /cache
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: cache
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /cache
+            name: cache
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: workspace
+          any: true

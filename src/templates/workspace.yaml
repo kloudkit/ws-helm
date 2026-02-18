@@ -12,6 +12,9 @@ global:
   {{- with (dig "project" nil $ws) }}
     {{- $_ := set $labels "ws.kloudkit.com/project" (toString .) }}
   {{- end }}
+  {{- with (dig "firewall" nil $ws) }}
+    {{- $_ := set $labels "ws.kloudkit.com/firewall" (toString .) }}
+  {{- end }}
   {{- with (dig "labels" nil $ws) }}
     {{- $_ := mergeOverwrite $labels . }}
   {{- end }}
@@ -72,12 +75,9 @@ controllers:
   {{- end }}
 
   {{- $secrets := dig "secrets" dict $ws }}
-  {{- if or (dig "masterKey" "" $secrets) (dig "autoGenerateMasterKey" false $secrets) }}
-          WS_SECRETS_MASTER_KEY:
-            valueFrom:
-              secretKeyRef:
-                name: {{ printf "%s-master-key" $.Release.Name }}
-                key: master-key
+  {{- $hasMasterKey := or (dig "masterKey" "" $secrets) (dig "autoGenerateMasterKey" false $secrets) }}
+  {{- if $hasMasterKey }}
+          WS_SECRETS_MASTER_KEY_FILE: "/run/secrets/workspace/master-key"
   {{- end }}
 
           {{- include "workspace.wsEnv" . | nindent 10 }}
@@ -163,12 +163,18 @@ ingress:
     {{- end }}
   {{- end }}
 
-  {{- if (dig "persistence" "enabled" true $ws) }}
+  {{- $persEnabled := dig "persistence" "enabled" true $ws -}}
+  {{- $extraPers := dig "persistence" "extra" dict $ws -}}
+  {{- if or $persEnabled $extraPers $hasMasterKey }}
 persistence:
+  {{- if $persEnabled }}
   workspace:
     type: {{ dig "persistence" "type" "persistentVolumeClaim" $ws }}
     accessMode: {{ dig "persistence" "accessMode" "ReadWriteOnce" $ws }}
     size: {{ dig "persistence" "size" "25Gi" $ws }}
+    {{- with (dig "persistence" "existingClaim" nil $ws) }}
+    existingClaim: {{ . }}
+    {{- end }}
     {{- with (dig "persistence" "storageClass" nil $ws) }}
     storageClass: {{ . }}
     {{- end }}
@@ -179,6 +185,18 @@ persistence:
       - path: {{ .path }}
         subPath: {{ .name }}
     {{- end }}
+  {{- end }}
+  {{- if $hasMasterKey }}
+  master-key:
+    type: secret
+    name: {{ printf "%s-master-key" $.Release.Name }}
+    globalMounts:
+      - path: /run/secrets/workspace
+        readOnly: true
+  {{- end }}
+  {{- range $name, $entry := $extraPers }}
+  {{ $name }}: {{ toYaml $entry | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
 

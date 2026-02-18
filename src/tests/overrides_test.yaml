@@ -55,20 +55,6 @@ tests:
             name: WS_SERVER_ROOT_DIR
             value: /home/kloud
 
-  - it: should not mount volumes when persistence is disabled
-    set:
-      workspace:
-        persistence:
-          enabled: false
-    documentSelector:
-      path: kind
-      value: Deployment
-    asserts:
-      - isNull:
-          path: spec.template.spec.containers[0].volumeMounts
-      - isNull:
-          path: spec.template.spec.volumes
-
   - it: should use custom image repository
     set:
       workspace:
@@ -152,77 +138,3 @@ tests:
           path: spec.template.spec.hostname
           value: RELEASE-NAME-ws
 
-  - it: should set custom storageClass on PVC
-    set:
-      workspace:
-        persistence:
-          storageClass: fast-ssd
-    documentSelector:
-      path: kind
-      value: PersistentVolumeClaim
-    asserts:
-      - equal:
-          path: spec.storageClassName
-          value: fast-ssd
-
-  - it: should set custom size on PVC
-    set:
-      workspace:
-        persistence:
-          size: 100Gi
-    documentSelector:
-      path: kind
-      value: PersistentVolumeClaim
-    asserts:
-      - equal:
-          path: spec.resources.requests.storage
-          value: 100Gi
-
-  - it: should set custom accessMode on PVC
-    set:
-      workspace:
-        persistence:
-          accessMode: ReadWriteMany
-    documentSelector:
-      path: kind
-      value: PersistentVolumeClaim
-    asserts:
-      - equal:
-          path: spec.accessModes
-          value:
-            - ReadWriteMany
-
-  - it: should mount additional paths from the same PVC
-    set:
-      workspace:
-        persistence:
-          additionalPaths:
-            - name: ssh
-              path: /home/kloud/.ssh
-            - name: config
-              path: /home/kloud/.config
-    documentSelector:
-      path: kind
-      value: Deployment
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].volumeMounts
-          content:
-            mountPath: /home/kloud/.ssh
-            name: workspace
-            subPath: ssh
-      - contains:
-          path: spec.template.spec.containers[0].volumeMounts
-          content:
-            mountPath: /home/kloud/.config
-            name: workspace
-            subPath: config
-
-  - it: should only have default volumeMounts when no additionalMounts
-    documentSelector:
-      path: kind
-      value: Deployment
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].volumeMounts
-          count: 1

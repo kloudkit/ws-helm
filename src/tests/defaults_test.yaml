@@ -34,3 +34,15 @@ tests:
     asserts:
       - hasDocuments:
           count: 3
+
+  - it: should not set owner, project, or firewall labels by default
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - notExists:
+          path: metadata.labels["ws.kloudkit.com/owner"]
+      - notExists:
+          path: metadata.labels["ws.kloudkit.com/project"]
+      - notExists:
+          path: metadata.labels["ws.kloudkit.com/firewall"]
