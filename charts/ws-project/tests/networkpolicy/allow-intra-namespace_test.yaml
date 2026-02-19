@@ -1,0 +1,70 @@
+---
+suite: NetworkPolicy / allow-intra-namespace
+templates:
+  - templates/networkpolicy/allow-intra-namespace.yaml
+release:
+  name: my-release
+tests:
+  - it: should render when intraNamespace is true
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should not render when intraNamespace is false
+    set:
+      project.name: myproject
+      project.network.intraNamespace: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: podSelector should exclude pods with firewall label
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector.matchExpressions[0].key
+          value: ws.kloudkit.com/firewall
+      - equal:
+          path: spec.podSelector.matchExpressions[0].operator
+          value: DoesNotExist
+
+  - it: ingress should only allow from non-isolated pods
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchExpressions[0].key
+          value: ws.kloudkit.com/firewall
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchExpressions[0].operator
+          value: DoesNotExist
+
+  - it: egress should allow to all pods in namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].podSelector
+          value: {}
+
+  - it: should cover both Ingress and Egress policyTypes
+    set:
+      project.name: myproject
+    asserts:
+      - contains:
+          path: spec.policyTypes
+          content: Ingress
+      - contains:
+          path: spec.policyTypes
+          content: Egress
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

@@ -1,0 +1,66 @@
+---
+suite: NetworkPolicy / allow-external-egress
+templates:
+  - templates/networkpolicy/allow-external-egress.yaml
+release:
+  name: my-release
+tests:
+  - it: should always render exactly one document
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should select all pods
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector
+          value: {}
+
+  - it: should only allow Egress
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Egress
+
+  - it: should allow egress to 0.0.0.0/0
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].ipBlock.cidr
+          value: 0.0.0.0/0
+
+  - it: should not have except when clusterCIDRs is empty
+    set:
+      project.name: myproject
+    asserts:
+      - notExists:
+          path: spec.egress[0].to[0].ipBlock.except
+
+  - it: should exclude clusterCIDRs when set
+    set:
+      project.name: myproject
+      project.network.clusterCIDRs:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].ipBlock.except
+          value:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

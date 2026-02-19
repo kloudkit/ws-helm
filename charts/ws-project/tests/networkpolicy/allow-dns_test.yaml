@@ -1,0 +1,68 @@
+---
+suite: NetworkPolicy / allow-dns
+templates:
+  - templates/networkpolicy/allow-dns.yaml
+release:
+  name: my-release
+tests:
+  - it: should render when dnsEgress is true
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should not render when dnsEgress is false
+    set:
+      project.name: myproject
+      project.network.dnsEgress: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should select all pods
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector
+          value: {}
+
+  - it: should only allow Egress
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Egress
+
+  - it: should allow UDP on port 53
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].ports[0].port
+          value: 53
+      - equal:
+          path: spec.egress[0].ports[0].protocol
+          value: UDP
+
+  - it: should allow TCP on port 53
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].ports[1].port
+          value: 53
+      - equal:
+          path: spec.egress[0].ports[1].protocol
+          value: TCP
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

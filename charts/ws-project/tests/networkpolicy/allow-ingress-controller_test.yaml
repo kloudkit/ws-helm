@@ -1,0 +1,58 @@
+---
+suite: NetworkPolicy / allow-ingress-controller
+templates:
+  - templates/networkpolicy/allow-ingress-controller.yaml
+release:
+  name: my-release
+tests:
+  - it: should not render when ingressControllerNamespace is not set
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render when ingressControllerNamespace is set
+    set:
+      project.name: myproject
+      project.network.ingressControllerNamespace: ingress-nginx
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should match the configured ingress controller namespace
+    set:
+      project.name: myproject
+      project.network.ingressControllerNamespace: ingress-nginx
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].namespaceSelector.matchLabels["kubernetes.io/metadata.name"]
+          value: ingress-nginx
+
+  - it: should select all pods
+    set:
+      project.name: myproject
+      project.network.ingressControllerNamespace: ingress-nginx
+    asserts:
+      - equal:
+          path: spec.podSelector
+          value: {}
+
+  - it: should only allow Ingress
+    set:
+      project.name: myproject
+      project.network.ingressControllerNamespace: ingress-nginx
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Ingress
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+      project.network.ingressControllerNamespace: ingress-nginx
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

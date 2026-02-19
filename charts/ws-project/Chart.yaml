@@ -1,0 +1,11 @@
+apiVersion: v2
+name: ws-project
+description: A Helm chart for KloudKIT Workspace Projects (multi-workspace namespaces)
+version: 0.1.0
+home: https://ws.kloudkit.com
+sources:
+  - https://github.com/kloudkit/ws-helm
+  - https://github.com/kloudkit/ws-meta
+keywords:
+  - workspace
+  - development-environment

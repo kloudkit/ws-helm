@@ -2,4 +2,4 @@
 .cr-release-packages
 CLAUDE.md
 dist/
-src/charts
+charts/*/charts

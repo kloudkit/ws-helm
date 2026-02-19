@@ -1,0 +1,64 @@
+---
+suite: NetworkPolicy / default-deny
+templates:
+  - templates/networkpolicy/default-deny.yaml
+release:
+  name: my-release
+tests:
+  - it: should always render exactly one document
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should select all pods
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector
+          value: {}
+
+  - it: should deny both Ingress and Egress
+    set:
+      project.name: myproject
+    asserts:
+      - contains:
+          path: spec.policyTypes
+          content: Ingress
+      - contains:
+          path: spec.policyTypes
+          content: Egress
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject
+
+  - it: should append extraEgressRules
+    set:
+      project.name: myproject
+      project.network.extraEgressRules:
+        - to:
+            - ipBlock:
+                cidr: 10.0.0.0/8
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].ipBlock.cidr
+          value: 10.0.0.0/8
+
+  - it: should append extraIngressRules
+    set:
+      project.name: myproject
+      project.network.extraIngressRules:
+        - from:
+            - ipBlock:
+                cidr: 192.168.0.0/16
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].ipBlock.cidr
+          value: 192.168.0.0/16

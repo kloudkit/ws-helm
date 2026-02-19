@@ -1,0 +1,29 @@
+{{- $p := .Values.project | default dict -}}
+{{- if (dig "network" "intraNamespace" true $p) }}
+---
+# Allow intra-namespace traffic for non-isolated workspace pods.
+# Pods labelled ws.kloudkit.com/firewall: isolated are excluded — they cannot
+# receive intra-namespace ingress from other workspace pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-intra-namespace
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: ws.kloudkit.com/firewall
+        operator: DoesNotExist
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: ws.kloudkit.com/firewall
+                operator: DoesNotExist
+  egress:
+    - to:
+        - podSelector: {}
+{{- end }}

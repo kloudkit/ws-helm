@@ -1,0 +1,56 @@
+---
+suite: Namespace defaults
+templates:
+  - templates/namespace.yaml
+release:
+  name: my-release
+tests:
+  - it: should render exactly one Namespace
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should derive namespace name from project.name
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.name
+          value: ws-myproject
+
+  - it: should set ws.kloudkit.com/project label
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.labels["ws.kloudkit.com/project"]
+          value: myproject
+
+
+  - it: should not have extra labels when none are configured
+    set:
+      project.name: myproject
+    asserts:
+      - isNull:
+          path: metadata.labels["team"]
+
+  - it: should use project.namespace when set
+    set:
+      project.name: myproject
+      project.namespace: custom-ns
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-ns
+
+  - it: should apply extra namespace labels
+    set:
+      project.name: myproject
+      project.labels:
+        team: platform
+    asserts:
+      - equal:
+          path: metadata.labels["team"]
+          value: platform

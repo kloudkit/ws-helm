@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name; used to derive namespace (ws-<name>) when namespace is not set"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Override the derived namespace name"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Extra labels to add to the Namespace"
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "intraNamespace": {
+              "type": "boolean",
+              "description": "Allow non-isolated pods to communicate within the namespace"
+            },
+            "dnsEgress": {
+              "type": "boolean",
+              "description": "Allow egress to kube-dns (UDP + TCP port 53)"
+            },
+            "ingressControllerNamespace": {
+              "type": ["string", "null"],
+              "description": "Namespace label for the ingress controller; empty disables the policy"
+            },
+            "clusterCIDRs": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Cluster-internal CIDRs excluded from external egress (pod + service networks)"
+            },
+            "extraEgressRules": {
+              "type": "array",
+              "description": "Additional raw NetworkPolicy egress rules for the default-deny policy"
+            },
+            "extraIngressRules": {
+              "type": "array",
+              "description": "Additional raw NetworkPolicy ingress rules for the default-deny policy"
+            }
+          }
+        },
+        "env": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, a ConfigMap with shared environment variables is created"
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "description": "Key/value pairs to populate the ConfigMap data"
+            }
+          }
+        },
+        "secret": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, a Secret with shared data is created"
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "description": "Key/value pairs to populate the Secret stringData"
+            }
+          }
+        },
+        "scripts": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, a ConfigMap with shared scripts is created"
+            },
+            "scripts": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "description": "Script files (filename: content pairs)"
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "description": "When true, a ReadWriteMany PVC is created for the namespace" },
+            "storageClass": { "type": ["string", "null"], "description": "StorageClass name (null uses cluster default)" },
+            "size": { "type": "string", "description": "Requested storage size" },
+            "accessMode": { "type": "string", "description": "PVC access mode" }
+          }
+        },
+        "quota": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, a ResourceQuota is created for the namespace"
+            },
+            "hard": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "description": "Hard resource limits (https://kubernetes.io/docs/concepts/policy/resource-quotas/)"
+            }
+          }
+        }
+      }
+    }
+  }
+}

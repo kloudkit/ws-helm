@@ -1,0 +1,21 @@
+{{- $p := .Values.project | default dict -}}
+---
+# Allow all pods to reach external IPs (outside cluster CIDRs).
+# Cluster-internal CIDRs are excluded to prevent bypassing pod-level policies.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-egress
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            {{- with (dig "network" "clusterCIDRs" nil $p) }}
+            except:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}

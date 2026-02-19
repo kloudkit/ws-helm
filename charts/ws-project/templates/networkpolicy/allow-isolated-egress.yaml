@@ -1,0 +1,23 @@
+{{- $p := .Values.project | default dict -}}
+{{- if (dig "network" "intraNamespace" true $p) }}
+---
+# Allow isolated workspace pods to initiate calls to shared services
+# (pods without ws.kloudkit.com/owner label) within the project namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-isolated-egress
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  podSelector:
+    matchLabels:
+      ws.kloudkit.com/firewall: isolated
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchExpressions:
+              - key: ws.kloudkit.com/owner
+                operator: DoesNotExist
+{{- end }}

@@ -1,0 +1,17 @@
+{{- if (dig "persistence" "enabled" false (.Values.project | default dict)) }}
+{{- $p := .Values.project | default dict -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-shared" (include "ws-project.name" .) }}
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  accessModes:
+    - {{ dig "persistence" "accessMode" "ReadWriteMany" $p }}
+  resources:
+    requests:
+      storage: {{ dig "persistence" "size" "50Gi" $p }}
+  {{- with (dig "persistence" "storageClass" nil $p) }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}

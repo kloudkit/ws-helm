@@ -1,0 +1,57 @@
+---
+suite: NetworkPolicy / allow-isolated-egress
+templates:
+  - templates/networkpolicy/allow-isolated-egress.yaml
+release:
+  name: my-release
+tests:
+  - it: should render when intraNamespace is true
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should not render when intraNamespace is false
+    set:
+      project.name: myproject
+      project.network.intraNamespace: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should target pods labelled firewall=isolated
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels["ws.kloudkit.com/firewall"]
+          value: isolated
+
+  - it: should only allow Egress
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Egress
+
+  - it: egress should only allow to pods without owner label (shared services)
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].podSelector.matchExpressions[0].key
+          value: ws.kloudkit.com/owner
+      - equal:
+          path: spec.egress[0].to[0].podSelector.matchExpressions[0].operator
+          value: DoesNotExist
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

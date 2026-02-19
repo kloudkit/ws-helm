@@ -1,0 +1,89 @@
+---
+## Kloud Workspace Project Helm Chart
+## https://ws.kloudkit.com
+
+# project:
+
+  # -- Project name; used to derive namespace (ws-<name>) when namespace is not set.
+  # -- Convention: use the project name as the Helm release name:
+  # --   helm install <project-name> charts/ws-project/ --set project.name=<project-name>
+  # -- Note: project.name is immutable after install. Changing it on upgrade creates a new namespace.
+  # name: ~
+
+  # -- Override the derived namespace name
+  # namespace: ~
+
+  # -- Extra labels to add to the Namespace
+  # labels: {}
+
+  # -- Network policy configuration.
+  # -- Policies use ws.kloudkit.com/owner and ws.kloudkit.com/firewall labels
+  # -- as pod selectors to distinguish workspace pods from shared services.
+  # network:
+  #   # -- Allow non-isolated pods to communicate within the namespace
+  #   # @default -- true
+  #   intraNamespace: true
+  #   # -- Allow egress to kube-dns (UDP + TCP port 53)
+  #   # @default -- true
+  #   dnsEgress: true
+  #   # -- Namespace label for the ingress controller; empty disables the policy
+  #   ingressControllerNamespace: ~
+  #   # -- Cluster-internal CIDRs excluded from external egress (pod + service networks)
+  #   clusterCIDRs: []
+  #   #   - 10.0.0.0/8
+  #   #   - 172.16.0.0/12
+  #   # -- Additional raw NetworkPolicy egress rules for the default-deny policy
+  #   extraEgressRules: []
+  #   # -- Additional raw NetworkPolicy ingress rules for the default-deny policy
+  #   extraIngressRules: []
+
+  # -- Shared environment variables (ConfigMap)
+  # -- ConfigMap name: <project.name>-env
+  # env:
+  #   # -- When true, a ConfigMap with shared environment variables is created
+  #   enabled: false
+  #   # -- Key/value pairs to populate the ConfigMap data
+  #   data: {}
+
+  # -- Shared secrets (Secret)
+  # -- Secret name: <project.name>
+  # secret:
+  #   # -- When true, a Secret with shared data is created
+  #   enabled: false
+  #   # -- Key/value pairs to populate the Secret stringData
+  #   data: {}
+
+  # -- Shared shell scripts (ConfigMap) mountable by workspaces via persistence.extra.
+  # -- ConfigMap name: <project.name>-scripts
+  # scripts:
+  #   # -- When true, a ConfigMap with shared scripts is created
+  #   enabled: false
+  #   # -- Script files (filename: content pairs)
+  #   scripts: {}
+  #   #   setup.sh: |
+  #   #     #!/bin/bash
+  #   #     echo "project bootstrap"
+
+  # -- Shared persistent storage for all workspaces in the namespace
+  # -- PVC name: <project.name>-shared
+  # persistence:
+  #   # -- When true, a ReadWriteMany PVC is created for the namespace
+  #   enabled: false
+  #   # -- StorageClass name (~ uses cluster default)
+  #   storageClass: ~
+  #   # -- Requested storage size
+  #   size: 50Gi
+  #   # -- PVC access mode
+  #   accessMode: ReadWriteMany
+
+  # -- Resource quota for the namespace
+  # quota:
+  #   # -- When true, a ResourceQuota is created for the namespace
+  #   enabled: false
+  #   # -- Hard resource limits
+  #   hard: {}
+  #   #   requests.cpu: "4"
+  #   #   requests.memory: 8Gi
+  #   #   limits.cpu: "8"
+  #   #   limits.memory: 16Gi
+  #   #   pods: "10"

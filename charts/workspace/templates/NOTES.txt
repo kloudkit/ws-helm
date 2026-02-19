@@ -1,0 +1,22 @@
+KloudKIT Workspace has been deployed.
+
+{{- $ws := .Values.workspace | default dict }}
+{{- $ingressEnabled := dig "ingress" "enabled" false $ws }}
+{{- $primary := dig "domains" "primary" "" $ws }}
+{{- $hasTLS := dig "ingress" "tls" list $ws | len | lt 0 }}
+{{- $port := dig "port" 8080 $ws }}
+{{- if and $ingressEnabled $primary }}
+  {{- $scheme := ternary "https" "http" $hasTLS }}
+Access your workspace at:
+
+  {{ $scheme }}://{{ $primary }}
+
+Or port-forward:
+{{- else }}
+Port-forward to get started:
+{{- end }}
+
+  kubectl port-forward svc/{{ .Release.Name }}-workspace {{ $port }}:{{ $port }}
+  open http://localhost:{{ $port }}
+
+For full documentation visit https://ws.kloudkit.com

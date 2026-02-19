@@ -1,0 +1,21 @@
+{{- $p := .Values.project | default dict -}}
+---
+# Default deny: block all ingress and egress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  {{- with (dig "network" "extraEgressRules" nil $p) }}
+  egress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with (dig "network" "extraIngressRules" nil $p) }}
+  ingress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

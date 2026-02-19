@@ -1,0 +1,10 @@
+{{- $p := .Values.project | default dict -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "ws-project.namespace" . }}
+  labels:
+    ws.kloudkit.com/project: {{ dig "name" "" $p | quote }}
+    {{- with (dig "labels" nil $p) }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}

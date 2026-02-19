@@ -1,0 +1,103 @@
+---
+suite: Project shared resource mounting
+templates:
+  - templates/workspace.yaml
+tests:
+  - it: should mount shared env ConfigMap when sharedEnvs is true
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedEnvs: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: myproject-env
+
+  - it: should mount shared Secret when sharedSecrets is true
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedSecrets: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: myproject
+
+  - it: should use custom ConfigMap name when sharedEnvs is a string
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedEnvs: custom-cm
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: custom-cm
+
+  - it: should use custom Secret name when sharedSecrets is a string
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedSecrets: custom-secret
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: custom-secret
+
+  - it: should include both project entries and user envFrom entries
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedEnvs: true
+        envFrom:
+          - configMapRef:
+              name: extra-cm
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: myproject-env
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: extra-cm
+
+  - it: should not add envFrom when project is string only
+    set:
+      workspace:
+        project: myproject
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].envFrom

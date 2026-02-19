@@ -1,0 +1,29 @@
+{{- $p := .Values.project | default dict }}
+{{- $ns := include "ws-project.namespace" . }}
+{{- $name := include "ws-project.name" . }}
+KloudKIT Workspace project {{ $name }} has been provisioned.
+
+Resources created:
+  - Namespace: {{ $ns }}
+  - NetworkPolicies
+{{- if dig "quota" "enabled" false $p }}
+  - ResourceQuota
+{{- end }}
+{{- if dig "persistence" "enabled" false $p }}
+  - Shared PVC: {{ $name }}-shared
+{{- end }}
+{{- if dig "env" "enabled" false $p }}
+  - Shared env ConfigMap: {{ $name }}-env
+{{- end }}
+{{- if dig "secret" "enabled" false $p }}
+  - Shared Secret: {{ $name }}
+{{- end }}
+{{- if dig "scripts" "enabled" false $p }}
+  - Shared scripts ConfigMap: {{ $name }}-scripts
+{{- end }}
+
+Deploy workspaces into this namespace using the workspace chart:
+
+  helm install {{ $name }} oci://ghcr.io/kloudkit/charts/workspace --namespace {{ $ns }}
+
+For full documentation visit https://ws.kloudkit.com

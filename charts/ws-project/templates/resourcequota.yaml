@@ -1,0 +1,10 @@
+{{- if (dig "quota" "enabled" false (.Values.project | default dict)) }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "ws-project.name" . }}
+  namespace: {{ include "ws-project.namespace" . }}
+spec:
+  hard:
+    {{- toYaml (dig "quota" "hard" dict (.Values.project | default dict)) | nindent 4 }}
+{{- end }}
