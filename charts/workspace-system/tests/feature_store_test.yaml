@@ -1,0 +1,119 @@
+---
+suite: Feature Store
+templates:
+  - templates/feature-store.yaml
+release:
+  name: my-release
+tests:
+  - it: should render no documents when disabled (default)
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render Deployment and Service when enabled
+    set:
+      system.featureStore.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should render a Deployment when enabled
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isKind:
+          of: Deployment
+
+  - it: should use default image repository
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/kloudkit/ws-feature-store:v2026.02
+
+  - it: should use default image tag v2026.02
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: ":v2026\\.02$"
+
+  - it: should default replicas to 1
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: should override image repository
+    set:
+      system.featureStore.enabled: true
+      system.featureStore.image.repository: my-registry/custom-store
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "^my-registry/custom-store:"
+
+  - it: should override image tag
+    set:
+      system.featureStore.enabled: true
+      system.featureStore.image.tag: v2099.01
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: ":v2099\\.01$"
+
+  - it: should override replicas
+    set:
+      system.featureStore.enabled: true
+      system.featureStore.replicas: 3
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: should render a ClusterIP Service
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should expose port 80
+    set:
+      system.featureStore.enabled: true
+    documentSelector:
+      path: kind
+      value: Service
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 80

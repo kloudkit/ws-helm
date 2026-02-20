@@ -23,18 +23,21 @@ repos:
     hooks:
       - id: helm-lint-workspace
         name: helm lint (workspace)
-        entry: >-
-          bash -c
-          'helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts --force-update
-          && helm dependency build charts/workspace
-          && helm lint charts/workspace'
-        language: system
+        entry: shared/scripts/helm-lint-with-deps.sh charts/workspace
+        language: script
         files: ^charts/workspace
         pass_filenames: false
 
-      - id: helm-lint-ws-project
-        name: helm lint (ws-project)
-        entry: helm lint charts/ws-project
+      - id: helm-lint-workspace-project
+        name: helm lint (workspace-project)
+        entry: helm lint charts/workspace-project
         language: system
-        files: ^charts/ws-project
+        files: ^charts/workspace-project
+        pass_filenames: false
+
+      - id: helm-lint-workspace-system
+        name: helm lint (workspace-system)
+        entry: shared/scripts/helm-lint-with-deps.sh charts/workspace-system
+        language: script
+        files: ^charts/workspace-system
         pass_filenames: false

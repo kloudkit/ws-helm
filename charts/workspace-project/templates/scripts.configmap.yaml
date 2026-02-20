@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "ws-project.name" . }}-scripts
-  namespace: {{ include "ws-project.namespace" . }}
+  name: {{ include "workspace-project.name" . }}-scripts
+  namespace: {{ include "workspace-project.namespace" . }}
 data:
   {{- dig "scripts" "scripts" dict (.Values.project | default dict) | toYaml | nindent 2 }}
 {{- end }}

@@ -1,0 +1,52 @@
+---
+suite: Namespace
+templates:
+  - templates/namespace.yaml
+release:
+  name: my-release
+tests:
+  - it: should render exactly one Namespace
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should default namespace name to workspace-system
+    asserts:
+      - equal:
+          path: metadata.name
+          value: workspace-system
+
+  - it: should override namespace name via system.namespace
+    set:
+      system.namespace: custom-system
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-system
+
+  - it: should not have extra labels when none are configured
+    asserts:
+      - isNull:
+          path: metadata.labels["team"]
+
+  - it: should apply extra namespace labels
+    set:
+      system.labels:
+        team: platform
+    asserts:
+      - equal:
+          path: metadata.labels["team"]
+          value: platform
+
+  - it: should apply multiple extra namespace labels
+    set:
+      system.labels:
+        team: platform
+        env: production
+    asserts:
+      - equal:
+          path: metadata.labels["team"]
+          value: platform
+      - equal:
+          path: metadata.labels["env"]
+          value: production

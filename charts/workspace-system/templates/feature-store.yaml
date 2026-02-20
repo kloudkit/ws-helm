@@ -1,0 +1,26 @@
+{{- define "workspace-system.featureStoreValues" -}}
+  {{- $fs := index (.Values.system | default dict) "featureStore" | default dict -}}
+controllers:
+  store:
+    replicas: {{ dig "replicas" 1 $fs }}
+    containers:
+      main:
+        image:
+          repository: {{ dig "image" "repository" "ghcr.io/kloudkit/ws-feature-store" $fs }}
+          tag: {{ dig "image" "tag" "v2026.02" $fs | quote }}
+          pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $fs }}
+service:
+  store:
+    controller: store
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+{{- end }}
+
+{{- $fs := index (.Values.system | default dict) "featureStore" | default dict -}}
+{{- if index $fs "enabled" -}}
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "workspace-system.featureStoreValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
+{{- include "bjw-s.common.loader.all" $ctx }}
+{{- end }}

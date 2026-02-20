@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "system": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "description": "Override the system namespace name"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Extra labels to add to the Namespace"
+        },
+        "featureStore": {
+          "type": "object",
+          "properties": {
+            "enabled":  { "type": "boolean", "description": "Enable the feature store deployment" },
+            "replicas": { "type": "integer", "minimum": 1, "description": "Number of replicas" },
+            "image": {
+              "type": "object",
+              "properties": {
+                "repository": { "type": "string",  "description": "Container image repository." },
+                "tag":        { "type": "string",  "description": "Container image tag." },
+                "pullPolicy": { "type": "string",  "description": "Image pull policy.",
+                                "enum": ["Always","IfNotPresent","Never"] }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

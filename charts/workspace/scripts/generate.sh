@@ -27,7 +27,7 @@ else
 fi
 
 # Properties promoted to top-level workspace.* keys — excluded from config generation
-PROMOTED='["server.port", "server.root_dir", "server.proxy_domain", "metrics.enable", "metrics.port", "metrics.collectors", "secrets.master_key_file"]'
+PROMOTED='["server.port", "server.root_dir", "server.proxy_domain", "metrics.enable", "metrics.port", "metrics.collectors", "secrets.master_key_file", "features.store_url"]'
 
 ###############################################################################
 # 1. Generate values.yaml workspace.config block

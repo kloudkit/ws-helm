@@ -1,0 +1,9 @@
+{{- $s := .Values.system | default dict -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "workspace-system.namespace" . }}
+  labels:
+    {{- with (dig "labels" nil $s) }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}

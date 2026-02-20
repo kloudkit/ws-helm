@@ -1,5 +1,5 @@
 apiVersion: v2
-name: ws-project
+name: workspace-project
 description: A Helm chart for KloudKIT Workspace Projects (multi-workspace namespaces)
 version: 0.1.0
 home: https://ws.kloudkit.com

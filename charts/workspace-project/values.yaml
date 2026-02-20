@@ -6,7 +6,7 @@
 
   # -- Project name; used to derive namespace (ws-<name>) when namespace is not set.
   # -- Convention: use the project name as the Helm release name:
-  # --   helm install <project-name> charts/ws-project/ --set project.name=<project-name>
+  # --   helm install <project-name> charts/workspace-project/ --set project.name=<project-name>
   # -- Note: project.name is immutable after install. Changing it on upgrade creates a new namespace.
   # name: ~
 

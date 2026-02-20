@@ -1,4 +1,4 @@
-.common.values.yaml
+shared/common.values.yaml
 .cr-release-packages
 CLAUDE.md
 dist/

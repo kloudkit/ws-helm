@@ -5,6 +5,7 @@
   "server.port" "server.root_dir" "server.proxy_domain"
   "metrics.enable" "metrics.port" "metrics.collectors"
   "secrets.master_key_file"
+  "features.store_url"
   -}}
 
   {{- $delims := dict

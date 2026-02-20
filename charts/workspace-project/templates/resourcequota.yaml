@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: {{ include "ws-project.name" . }}
-  namespace: {{ include "ws-project.namespace" . }}
+  name: {{ include "workspace-project.name" . }}
+  namespace: {{ include "workspace-project.namespace" . }}
 spec:
   hard:
     {{- toYaml (dig "quota" "hard" dict (.Values.project | default dict)) | nindent 4 }}

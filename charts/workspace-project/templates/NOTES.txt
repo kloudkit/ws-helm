@@ -1,6 +1,6 @@
 {{- $p := .Values.project | default dict }}
-{{- $ns := include "ws-project.namespace" . }}
-{{- $name := include "ws-project.name" . }}
+{{- $ns := include "workspace-project.namespace" . }}
+{{- $name := include "workspace-project.name" . }}
 KloudKIT Workspace project {{ $name }} has been provisioned.
 
 Resources created:

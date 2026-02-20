@@ -26,6 +26,7 @@
   #   # name: myproject
   #   # sharedEnvs: true    # mount <project.name>-env ConfigMap as envFrom
   #   # sharedSecrets: true # mount <project.name> Secret as envFrom
+  #   # sharedPVC: true     # mount <project.name>-shared PVC at /shared
 
   # -- Container image configuration
   # image:
@@ -113,6 +114,10 @@
   #   tls: []
   #   # -- Additional ingress annotations
   #   annotations: {}
+
+  # -- Feature store integration (sets WS_FEATURES_STORE_URL)
+  # -- false: disabled (default). true: use default in-cluster URL (http://workspace-system-store.workspace-system.svc). String: explicit URL.
+  # featureStore: false
 
   # -- Master key for the workspace secrets vault
   # secrets:
@@ -235,10 +240,6 @@
       # -- Directory path where additional features are located.
       # Maps to: WS_FEATURES_DIR
       # dir:
-
-      # -- URL of a ws-feature-store instance used as a local mirror.
-      # Maps to: WS_FEATURES_STORE_URL
-      # store_url:
 
     # git:
       # -- Clears outputs from Jupyter notebooks during git operations.

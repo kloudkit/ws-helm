@@ -1,0 +1,27 @@
+---
+## KloudKIT Workspace System Helm Chart
+## https://ws.kloudkit.com
+
+# system:
+  # -- Override the system namespace name
+  # @default -- workspace-system
+  # namespace: workspace-system
+
+  # -- Extra labels to add to the Namespace
+  # labels: {}
+
+  # -- Feature store deployment (opt-in)
+  # featureStore:
+  #   # -- Enable the feature store
+  #   enabled: false
+  #   # -- Number of replicas (set >1 for basic HA)
+  #   # @default -- 1
+  #   # replicas: 1
+  #   # -- Container image configuration
+  #   # image:
+  #   #   # @default -- ghcr.io/kloudkit/ws-feature-store
+  #   #   repository: ghcr.io/kloudkit/ws-feature-store
+  #   #   # @default -- v2026.02
+  #   #   tag: ""
+  #   #   # @default -- IfNotPresent
+  #   #   pullPolicy: IfNotPresent

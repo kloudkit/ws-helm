@@ -31,8 +31,13 @@ jobs:
             has_generate: true
             has_tests: true
 
-          - chart: ws-project
+          - chart: workspace-project
             has_deps: false
+            has_generate: false
+            has_tests: true
+
+          - chart: workspace-system
+            has_deps: true
             has_generate: false
             has_tests: true
 

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ include "ws-project.namespace" . }}
+  name: {{ include "workspace-project.namespace" . }}
   labels:
     ws.kloudkit.com/project: {{ dig "name" "" $p | quote }}
     {{- with (dig "labels" nil $p) }}

@@ -1,0 +1,8 @@
+{{- define "workspace-system.hardcodedValues" -}}
+global:
+  labels: {}
+{{- end }}
+
+{{- $ctx := deepCopy . -}}
+{{- $_ := include "workspace-system.hardcodedValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
+{{- include "bjw-s.common.loader.all" $ctx }}

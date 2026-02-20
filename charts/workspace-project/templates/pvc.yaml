@@ -3,8 +3,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ printf "%s-shared" (include "ws-project.name" .) }}
-  namespace: {{ include "ws-project.namespace" . }}
+  name: {{ printf "%s-shared" (include "workspace-project.name" .) }}
+  namespace: {{ include "workspace-project.namespace" . }}
 spec:
   accessModes:
     - {{ dig "persistence" "accessMode" "ReadWriteMany" $p }}

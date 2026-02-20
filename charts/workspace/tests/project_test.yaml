@@ -91,6 +91,45 @@ tests:
             configMapRef:
               name: extra-cm
 
+  - it: should mount shared PVC at /shared when sharedPVC is true
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedPVC: true
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "shared")].persistentVolumeClaim.claimName
+          value: myproject-shared
+
+  - it: should use custom PVC name when sharedPVC is a string
+    set:
+      workspace:
+        project:
+          name: myproject
+          sharedPVC: custom-pvc
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[?(@.name == "shared")].persistentVolumeClaim.claimName
+          value: custom-pvc
+
+  - it: should not mount shared PVC when project is string only
+    set:
+      workspace:
+        project: myproject
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - notExists:
+          path: spec.template.spec.volumes[?(@.name == "shared")]
+
   - it: should not add envFrom when project is string only
     set:
       workspace:

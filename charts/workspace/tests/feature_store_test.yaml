@@ -1,0 +1,58 @@
+suite: Feature Store integration
+templates:
+  - templates/workspace.yaml
+release:
+  name: my-release
+
+tests:
+  - it: should not set WS_FEATURES_STORE_URL when featureStore is not set
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_FEATURES_STORE_URL
+
+  - it: should not set WS_FEATURES_STORE_URL when featureStore is false
+    set:
+      workspace.featureStore: false
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_FEATURES_STORE_URL
+
+  - it: should set default in-cluster URL when featureStore is true
+    set:
+      workspace.featureStore: true
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_FEATURES_STORE_URL
+            value: "http://workspace-system-store.workspace-system.svc"
+
+  - it: should set explicit URL when featureStore is a string
+    set:
+      workspace.featureStore: "http://custom-store"
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WS_FEATURES_STORE_URL
+            value: "http://custom-store"
+
+  # Note: workspace.config.features.store_url is no longer a valid schema property
+  # (it is promoted). Passing it causes a schema validation error, which is the
+  # intended enforcement. No additional test is required here.

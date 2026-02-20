@@ -1,0 +1,6 @@
+KloudKIT Workspace System has been provisioned.
+
+Resources created:
+  - Namespace: {{ include "workspace-system.namespace" . }}
+
+For full documentation visit https://ws.kloudkit.com

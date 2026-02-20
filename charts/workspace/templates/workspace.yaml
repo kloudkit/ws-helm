@@ -80,6 +80,16 @@ controllers:
           WS_SECRETS_MASTER_KEY_FILE: "/run/secrets/workspace/master-key"
   {{- end }}
 
+  {{- with (dig "featureStore" nil $ws) }}
+    {{- if kindIs "bool" . }}
+      {{- if . }}
+          WS_FEATURES_STORE_URL: "http://workspace-system-store.workspace-system.svc"
+      {{- end }}
+    {{- else }}
+          WS_FEATURES_STORE_URL: {{ . | quote }}
+    {{- end }}
+  {{- end }}
+
           {{- include "workspace.wsEnv" . | nindent 10 }}
 
   {{- with (dig "env" nil $ws) }}
@@ -195,6 +205,18 @@ persistence:
     globalMounts:
       - path: /run/secrets/workspace
         readOnly: true
+  {{- end }}
+  {{- $projectName := include "workspace.projectName" . | trim }}
+  {{- $project := dig "project" nil $ws }}
+  {{- if kindIs "map" $project }}
+    {{- $pvcName := include "workspace.projectRef" (dict "val" (dig "sharedPVC" false $project) "default" (printf "%s-shared" $projectName)) | trim }}
+    {{- if $pvcName }}
+  shared:
+    type: persistentVolumeClaim
+    existingClaim: {{ $pvcName }}
+    globalMounts:
+      - path: /shared
+    {{- end }}
   {{- end }}
   {{- range $name, $entry := $extraPers }}
   {{ $name }}: {{ toYaml $entry | nindent 4 }}

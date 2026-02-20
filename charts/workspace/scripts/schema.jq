@@ -76,6 +76,10 @@ def prop_schema:
                 "sharedSecrets": {
                   "description": "Mount project shared Secret as envFrom. true uses <project.name>; string overrides the Secret name.",
                   "oneOf": [{"type": "boolean"}, {"type": "string"}, {"type": "null"}]
+                },
+                "sharedPVC": {
+                  "description": "Mount project shared PVC at /shared. true uses <project.name>-shared; string overrides the PVC name.",
+                  "oneOf": [{"type": "boolean"}, {"type": "string"}, {"type": "null"}]
                 }
               },
               "required": ["name"],
@@ -252,6 +256,14 @@ def prop_schema:
             }
           },
           "additionalProperties": false
+        },
+        "featureStore": {
+          "description": "Feature store for this workspace. false disables it; true uses the default in-cluster URL (http://workspace-system-store.workspace-system.svc); a string sets the URL explicitly.",
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string"  },
+            { "type": "null"    }
+          ]
         },
         "env": {
           "description": "Additional env vars passed directly to the container.",
