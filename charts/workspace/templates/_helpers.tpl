@@ -19,41 +19,41 @@
 {{- end -}}
 
 {{- define "workspace.projectName" -}}
-{{- $ws := .Values.workspace | default dict -}}
-{{- $project := dig "project" nil $ws -}}
-{{- if kindIs "string" $project -}}
+  {{- $ws := .Values.workspace | default dict -}}
+  {{- $project := dig "project" nil $ws -}}
+  {{- if kindIs "string" $project -}}
   {{- $project -}}
-{{- else if kindIs "map" $project -}}
+  {{- else if kindIs "map" $project -}}
   {{- dig "name" "" $project -}}
-{{- end -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* workspace.projectRef: resolves a boolean-or-string project resource reference.
-     Args: dict "val" <bool|string|nil> "default" <string>
-     Returns: the resource name, or empty string if val is falsy. */}}
+Args: dict "val" <bool|string|nil> "default" <string>
+Returns: the resource name, or empty string if val is falsy. */}}
 {{- define "workspace.projectRef" -}}
-{{- if .val -}}{{- kindIs "string" .val | ternary .val .default -}}{{- end -}}
+  {{- if .val -}}{{- kindIs "string" .val | ternary .val .default -}}{{- end -}}
 {{- end -}}
 
 {{- define "workspace.envFrom" -}}
-{{- $ws := .Values.workspace | default dict -}}
-{{- $project := dig "project" nil $ws -}}
-{{- $projectName := include "workspace.projectName" . | trim -}}
-{{- $entries := list -}}
-{{- if kindIs "map" $project -}}
-  {{- $cmName := include "workspace.projectRef" (dict "val" (dig "sharedEnvs" false $project) "default" (printf "%s-env" $projectName)) | trim -}}
-  {{- if $cmName -}}
+  {{- $ws := .Values.workspace | default dict -}}
+  {{- $project := dig "project" nil $ws -}}
+  {{- $projectName := include "workspace.projectName" . | trim -}}
+  {{- $entries := list -}}
+  {{- if kindIs "map" $project -}}
+    {{- $cmName := include "workspace.projectRef" (dict "val" (dig "sharedEnvs" false $project) "default" (printf "%s-env" $projectName)) | trim -}}
+    {{- if $cmName -}}
     {{- $entries = append $entries (dict "configMapRef" (dict "name" $cmName)) -}}
-  {{- end -}}
-  {{- $secretName := include "workspace.projectRef" (dict "val" (dig "sharedSecrets" false $project) "default" $projectName) | trim -}}
-  {{- if $secretName -}}
+    {{- end -}}
+    {{- $secretName := include "workspace.projectRef" (dict "val" (dig "sharedSecrets" false $project) "default" $projectName) | trim -}}
+    {{- if $secretName -}}
     {{- $entries = append $entries (dict "secretRef" (dict "name" $secretName)) -}}
+    {{- end -}}
   {{- end -}}
-{{- end -}}
-{{- range (dig "envFrom" (list) $ws) -}}
+  {{- range (dig "envFrom" (list) $ws) -}}
   {{- $entries = append $entries . -}}
-{{- end -}}
-{{- if $entries -}}{{- toYaml $entries -}}{{- end -}}
+  {{- end -}}
+  {{- if $entries -}}{{- toYaml $entries -}}{{- end -}}
 {{- end -}}
 
 {{- define "workspace.stripPort" -}}

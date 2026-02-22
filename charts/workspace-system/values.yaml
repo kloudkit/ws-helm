@@ -2,14 +2,6 @@
 ## KloudKIT Workspace System Helm Chart
 ## https://ws.kloudkit.com
 
-# system:
-  # -- Override the system namespace name
-  # @default -- workspace-system
-  # namespace: workspace-system
-
-  # -- Extra labels to add to the Namespace
-  # labels: {}
-
 # -- Feature store deployment (opt-in)
 # featureStore:
 #   # -- Enable the feature store
@@ -27,6 +19,14 @@
 #   #   tag: ""
 #   #   # @default -- IfNotPresent
 #   #   pullPolicy: IfNotPresent
+
+#   # -- Container resource requests and limits
+#   # resources:
+#   #   requests:
+#   #     cpu: 50m
+#   #     memory: 64Mi
+#   #   limits:
+#   #     memory: 128Mi
 
 # -- Traefik ingress controller (opt-in sub-chart).
 # -- Set traefik.enabled: true to deploy. All traefik.* keys pass through to the Traefik

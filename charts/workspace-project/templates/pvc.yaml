@@ -1,10 +1,10 @@
 {{- if (dig "persistence" "enabled" false (.Values.project | default dict)) }}
-{{- $p := .Values.project | default dict -}}
+  {{- $p := .Values.project | default dict -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ printf "%s-shared" (include "workspace-project.name" .) }}
-  namespace: {{ include "workspace-project.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
     - {{ dig "persistence" "accessMode" "ReadWriteMany" $p }}

@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "workspace-project.name" . }}-scripts
-  namespace: {{ include "workspace-project.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 data:
   {{- dig "scripts" "scripts" dict (.Values.project | default dict) | toYaml | nindent 2 }}
 {{- end }}

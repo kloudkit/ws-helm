@@ -4,6 +4,7 @@ templates:
   - templates/scripts.configmap.yaml
 release:
   name: my-release
+  namespace: ws-myproject
 tests:
   - it: should not render when scripts is not set
     set:

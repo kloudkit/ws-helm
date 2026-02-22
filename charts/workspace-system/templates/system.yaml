@@ -1,3 +1,4 @@
+{{- include "workspace-system.validate" . -}}
 {{- define "workspace-system.hardcodedValues" -}}
 global:
   labels:
@@ -29,8 +30,8 @@ networkpolicies:
 {{- end }}
 
 {{- define "workspace-system.featureStoreValues" -}}
-{{- $fs := .Values.featureStore | default dict -}}
-{{- if index $fs "enabled" -}}
+  {{- $fs := .Values.featureStore | default dict -}}
+  {{- if index $fs "enabled" -}}
 controllers:
   store:
     replicas: {{ dig "replicas" 1 $fs }}
@@ -40,6 +41,9 @@ controllers:
           repository: {{ dig "image" "repository" "ghcr.io/kloudkit/ws-feature-store" $fs }}
           tag: {{ dig "image" "tag" "v2026.02" $fs | quote }}
           pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $fs }}
+        {{- with dig "resources" nil $fs }}
+        resources: {{- toYaml . | nindent 10 }}
+        {{- end }}
 
 service:
   store:
@@ -48,7 +52,7 @@ service:
     ports:
       http:
         port: 80
-{{- end }}
+  {{- end }}
 {{- end }}
 
 {{- $ctx := deepCopy . -}}

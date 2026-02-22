@@ -10,12 +10,6 @@
   # -- Note: project.name is immutable after install. Changing it on upgrade creates a new namespace.
   # name: ~
 
-  # -- Override the derived namespace name
-  # namespace: ~
-
-  # -- Extra labels to add to the Namespace
-  # labels: {}
-
   # -- Network policy configuration.
   # -- Zone policies (allow-zone-project, allow-zone-isolated) are always rendered.
   # -- Pods must carry ws.kloudkit.com/zone labels to participate in zone-based access control.

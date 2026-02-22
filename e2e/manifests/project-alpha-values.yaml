@@ -1,0 +1,7 @@
+---
+project:
+  name: alpha
+  network:
+    clusterCIDRs:
+      - 10.244.0.0/16
+      - 10.96.0.0/12

@@ -47,6 +47,8 @@ jobs:
 
       - name: ☸ Setup Helm
         uses: azure/setup-helm@v3
+        with:
+          version: v3.17.3
 
       - name: 🔌 Install helm-unittest plugin
         if: matrix.has_tests
@@ -70,3 +72,25 @@ jobs:
       - name: 🧪 Run tests
         if: matrix.has_tests
         run: helm unittest -f "tests/**/*.yaml" ./charts/${{ matrix.chart }}
+
+  e2e:
+    name: 🌐 E2E / Network Policies
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: ☸ Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.17.3
+
+      - name: 🔧 Install kind
+        uses: helm/kind-action@v1
+        with:
+          install_only: true
+
+      - name: 🧪 Run e2e tests
+        run: e2e/e2e.sh all

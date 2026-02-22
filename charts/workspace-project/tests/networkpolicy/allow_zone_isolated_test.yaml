@@ -4,6 +4,7 @@ templates:
   - templates/networkpolicy/allow-zone-isolated.yaml
 release:
   name: my-release
+  namespace: ws-myproject
 tests:
   - it: should always render
     set:

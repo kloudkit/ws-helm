@@ -36,6 +36,8 @@ jobs:
 
       - name: ☸ Setup Helm
         uses: azure/setup-helm@v3
+        with:
+          version: v3.17.3
 
       - name: ⏬ Build dependencies
         run: |

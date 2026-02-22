@@ -4,6 +4,7 @@ templates:
   - templates/networkpolicy/allow-dns.yaml
 release:
   name: my-release
+  namespace: ws-myproject
 tests:
   - it: should render when dnsEgress is true
     set:

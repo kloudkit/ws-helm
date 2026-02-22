@@ -15,6 +15,7 @@ should render default Deployment:
           app.kubernetes.io/controller: main
           app.kubernetes.io/instance: my-release
           app.kubernetes.io/name: workspace
+          ws.kloudkit.com/zone: isolated
       spec:
         automountServiceAccountToken: true
         containers:

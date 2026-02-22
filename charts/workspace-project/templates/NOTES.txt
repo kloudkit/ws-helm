@@ -1,10 +1,9 @@
 {{- $p := .Values.project | default dict }}
-{{- $ns := include "workspace-project.namespace" . }}
 {{- $name := include "workspace-project.name" . }}
 KloudKIT Workspace project {{ $name }} has been provisioned.
 
 Resources created:
-  - Namespace: {{ $ns }}
+  - Namespace: {{ .Release.Namespace }}
   - NetworkPolicies
 {{- if dig "quota" "enabled" false $p }}
   - ResourceQuota
@@ -24,6 +23,6 @@ Resources created:
 
 Deploy workspaces into this namespace using the workspace chart:
 
-  helm install {{ $name }} oci://ghcr.io/kloudkit/charts/workspace --namespace {{ $ns }}
+  helm install {{ $name }} oci://ghcr.io/kloudkit/charts/workspace --namespace {{ .Release.Namespace }}
 
 For full documentation visit https://ws.kloudkit.com

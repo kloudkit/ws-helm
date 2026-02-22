@@ -2,6 +2,7 @@
 suite: Optional namespace resources
 release:
   name: my-release
+  namespace: ws-myproject
 
 tests:
   # --- env ConfigMap ---

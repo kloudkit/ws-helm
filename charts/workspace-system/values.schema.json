@@ -31,6 +31,21 @@
                             "enum": ["Always","IfNotPresent","Never"] }
           },
           "additionalProperties": false
+        },
+        "resources": {
+          "type": "object",
+          "description": "Container resource requests and limits.",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": { "anyOf": [{ "type": "string" }, { "type": "number" }] }
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": { "anyOf": [{ "type": "string" }, { "type": "number" }] }
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

@@ -1,6 +1,7 @@
 suite: Traefik ingress controller
 release:
   name: my-release
+  namespace: workspace-system
 tests:
   - it: should render an IngressClass when enabled
     set:

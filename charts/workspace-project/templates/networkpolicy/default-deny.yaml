@@ -1,20 +1,21 @@
+{{- include "workspace-project.validate" . -}}
 {{- $p := .Values.project | default dict -}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny
-  namespace: {{ include "workspace-project.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
   podSelector: {}
   policyTypes:
     - Ingress
     - Egress
-  {{- with (dig "network" "extraEgressRules" nil $p) }}
+{{- with (dig "network" "extraEgressRules" nil $p) }}
   egress:
     {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- with (dig "network" "extraIngressRules" nil $p) }}
+{{- end }}
+{{- with (dig "network" "extraIngressRules" nil $p) }}
   ingress:
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+{{- end }}

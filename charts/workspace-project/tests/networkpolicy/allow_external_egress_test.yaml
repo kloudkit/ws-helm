@@ -4,6 +4,7 @@ templates:
   - templates/networkpolicy/allow-external-egress.yaml
 release:
   name: my-release
+  namespace: ws-myproject
 tests:
   - it: should always render exactly one document
     set:
