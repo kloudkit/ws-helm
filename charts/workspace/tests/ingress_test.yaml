@@ -3,7 +3,20 @@ suite: Ingress configuration
 templates:
   - templates/workspace.yaml
 tests:
-  - it: should set ingress className
+  - it: should default ingress className to workspace-traefik
+    set:
+      workspace:
+        ingress:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: Ingress
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: workspace-traefik
+
+  - it: should override ingress className when set
     set:
       workspace:
         ingress:

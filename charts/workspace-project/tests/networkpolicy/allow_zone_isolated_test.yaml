@@ -1,0 +1,75 @@
+---
+suite: NetworkPolicy / allow-zone-isolated
+templates:
+  - templates/networkpolicy/allow-zone-isolated.yaml
+release:
+  name: my-release
+tests:
+  - it: should always render
+    set:
+      project.name: myproject
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should select zone=isolated pods
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels
+          value:
+            ws.kloudkit.com/zone: isolated
+
+  - it: should allow both Ingress and Egress
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Ingress
+            - Egress
+
+  - it: should allow ingress from global pods in any namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].namespaceSelector
+          value: {}
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchLabels
+          value:
+            ws.kloudkit.com/zone: global
+
+  - it: should allow egress to global pods in the system namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].namespaceSelector.matchLabels
+          value:
+            kubernetes.io/metadata.name: workspace-system
+      - equal:
+          path: spec.egress[0].to[0].podSelector.matchLabels
+          value:
+            ws.kloudkit.com/zone: global
+
+  - it: should use systemNamespace override in egress
+    set:
+      project.name: myproject
+      project.network.systemNamespace: my-system
+    asserts:
+      - equal:
+          path: spec.egress[0].to[0].namespaceSelector.matchLabels
+          value:
+            kubernetes.io/metadata.name: my-system
+
+  - it: should be in the project namespace
+    set:
+      project.name: myproject
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: ws-myproject

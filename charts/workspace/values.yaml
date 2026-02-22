@@ -7,10 +7,11 @@
   # -- Owner of this workspace (applied as a global label)
   # owner: ~
 
-  # -- Firewall policy label applied to all resources (used by external NetworkPolicies).
-  # -- Currently recognized value: "isolated" (deny all inter-workspace ingress).
-  # -- Absent or null means no isolation — governed by namespace-level policies.
-  # firewall: ~
+  # -- Network zone for this workspace pod (applied as ws.kloudkit.com/zone label).
+  # -- "isolated": egress to global services only; accepts ingress from ingress-controller and metrics.
+  # -- "project": access to same-namespace zone=project pods + global services; accepts ingress from ingress-controller and metrics.
+  # -- @default -- isolated
+  # zone: isolated
 
   # -- Additional labels applied to all resources
   # labels: {}
@@ -109,6 +110,7 @@
   #   # -- Create an Ingress resource
   #   enabled: false
   #   # -- Ingress class name
+  #   # @default -- workspace-traefik
   #   className: ~
   #   # -- TLS configuration (list of secrets)
   #   tls: []

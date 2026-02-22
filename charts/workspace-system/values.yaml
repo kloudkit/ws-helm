@@ -10,18 +10,42 @@
   # -- Extra labels to add to the Namespace
   # labels: {}
 
-  # -- Feature store deployment (opt-in)
-  # featureStore:
-  #   # -- Enable the feature store
-  #   enabled: false
-  #   # -- Number of replicas (set >1 for basic HA)
-  #   # @default -- 1
-  #   # replicas: 1
-  #   # -- Container image configuration
-  #   # image:
-  #   #   # @default -- ghcr.io/kloudkit/ws-feature-store
-  #   #   repository: ghcr.io/kloudkit/ws-feature-store
-  #   #   # @default -- v2026.02
-  #   #   tag: ""
-  #   #   # @default -- IfNotPresent
-  #   #   pullPolicy: IfNotPresent
+# -- Feature store deployment (opt-in)
+# featureStore:
+#   # -- Enable the feature store
+#   enabled: false
+
+#   # -- Number of replicas (set >1 for basic HA)
+#   # @default -- 1
+#   # replicas: 1
+
+#   # -- Container image configuration
+#   # image:
+#   #   # @default -- ghcr.io/kloudkit/ws-feature-store
+#   #   repository: ghcr.io/kloudkit/ws-feature-store
+#   #   # @default -- v2026.02
+#   #   tag: ""
+#   #   # @default -- IfNotPresent
+#   #   pullPolicy: IfNotPresent
+
+# -- Traefik ingress controller (opt-in sub-chart).
+# -- Set traefik.enabled: true to deploy. All traefik.* keys pass through to the Traefik
+# -- Helm chart (https://github.com/traefik/traefik-helm-chart).
+traefik:
+#   # -- Enable Traefik ingress controller
+  enabled: false
+  deployment:
+    podLabels:
+      ws.kloudkit.com/zone: global
+
+  ingressClass:
+    enabled: true
+    name: workspace-traefik
+    # Prevent Traefik from becoming the cluster-default ingress (Traefik default: true).
+    isDefaultClass: false
+
+  providers:
+    kubernetesIngress:
+      # Only process Ingress objects with spec.ingressClassName: workspace-traefik.
+      ingressClass: workspace-traefik
+      labelSelector: ws.kloudkit.com/zone

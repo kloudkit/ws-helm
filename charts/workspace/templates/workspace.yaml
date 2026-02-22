@@ -9,9 +9,7 @@ global:
   {{- with (dig "owner" nil $ws) }}
     {{- $_ := set $labels "ws.kloudkit.com/owner" (toString .) }}
   {{- end }}
-  {{- with (dig "firewall" nil $ws) }}
-    {{- $_ := set $labels "ws.kloudkit.com/firewall" (toString .) }}
-  {{- end }}
+  {{- $_ := set $labels "ws.kloudkit.com/zone" (dig "zone" "isolated" $ws | toString) }}
   {{- with (include "workspace.projectName" . | trim) }}
     {{- $_ := set $labels "ws.kloudkit.com/project" . }}
   {{- end }}
@@ -148,9 +146,7 @@ serviceMonitor:
   {{- if (dig "ingress" "enabled" false $ws) }}
 ingress:
   main:
-    {{- with (dig "ingress" "className" nil $ws) }}
-    className: {{ . }}
-    {{- end }}
+    className: {{ dig "ingress" "className" "workspace-traefik" $ws }}
     hosts:
     {{- if $allDomains }}
       {{- range $allDomains }}

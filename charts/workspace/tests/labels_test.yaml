@@ -48,10 +48,7 @@ tests:
             ws.kloudkit.com/owner: alice
             team: platform
 
-  - it: should set firewall label when isolated
-    set:
-      workspace:
-        firewall: isolated
+  - it: should set zone label to isolated by default
     documentSelector:
       path: kind
       value: Deployment
@@ -59,7 +56,20 @@ tests:
       - isSubset:
           path: metadata.labels
           content:
-            ws.kloudkit.com/firewall: isolated
+            ws.kloudkit.com/zone: isolated
+
+  - it: should set zone label when explicitly set to project
+    set:
+      workspace:
+        zone: project
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            ws.kloudkit.com/zone: project
 
   - it: should set project label when workspace.project is a string
     set:

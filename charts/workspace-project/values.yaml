@@ -17,17 +17,16 @@
   # labels: {}
 
   # -- Network policy configuration.
-  # -- Policies use ws.kloudkit.com/owner and ws.kloudkit.com/firewall labels
-  # -- as pod selectors to distinguish workspace pods from shared services.
+  # -- Zone policies (allow-zone-project, allow-zone-isolated) are always rendered.
+  # -- Pods must carry ws.kloudkit.com/zone labels to participate in zone-based access control.
   # network:
-  #   # -- Allow non-isolated pods to communicate within the namespace
-  #   # @default -- true
-  #   intraNamespace: true
+  #   # -- Namespace where global services (zone=global) are deployed.
+  #   # -- Used by zone policies for cross-namespace egress.
+  #   # @default -- workspace-system
+  #   systemNamespace: workspace-system
   #   # -- Allow egress to kube-dns (UDP + TCP port 53)
   #   # @default -- true
   #   dnsEgress: true
-  #   # -- Namespace label for the ingress controller; empty disables the policy
-  #   ingressControllerNamespace: ~
   #   # -- Cluster-internal CIDRs excluded from external egress (pod + service networks)
   #   clusterCIDRs: []
   #   #   - 10.0.0.0/8

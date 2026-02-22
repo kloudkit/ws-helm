@@ -1,0 +1,29 @@
+{{- $p := .Values.project | default dict -}}
+{{- $systemNs := dig "network" "systemNamespace" "workspace-system" $p -}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-zone-isolated
+  namespace: {{ include "workspace-project.namespace" . }}
+spec:
+  podSelector:
+    matchLabels:
+      ws.kloudkit.com/zone: isolated
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              ws.kloudkit.com/zone: global
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $systemNs }}
+          podSelector:
+            matchLabels:
+              ws.kloudkit.com/zone: global

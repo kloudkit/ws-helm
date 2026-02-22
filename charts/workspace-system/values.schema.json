@@ -13,26 +13,38 @@
           "type": "object",
           "additionalProperties": { "type": "string" },
           "description": "Extra labels to add to the Namespace"
-        },
-        "featureStore": {
+        }
+      },
+      "additionalProperties": false
+    },
+    "featureStore": {
+      "type": "object",
+      "properties": {
+        "enabled":  { "type": "boolean", "description": "Enable the feature store deployment" },
+        "replicas": { "type": "integer", "minimum": 1, "description": "Number of replicas" },
+        "image": {
           "type": "object",
           "properties": {
-            "enabled":  { "type": "boolean", "description": "Enable the feature store deployment" },
-            "replicas": { "type": "integer", "minimum": 1, "description": "Number of replicas" },
-            "image": {
-              "type": "object",
-              "properties": {
-                "repository": { "type": "string",  "description": "Container image repository." },
-                "tag":        { "type": "string",  "description": "Container image tag." },
-                "pullPolicy": { "type": "string",  "description": "Image pull policy.",
-                                "enum": ["Always","IfNotPresent","Never"] }
-              },
-              "additionalProperties": false
-            }
+            "repository": { "type": "string",  "description": "Container image repository." },
+            "tag":        { "type": "string",  "description": "Container image tag." },
+            "pullPolicy": { "type": "string",  "description": "Image pull policy.",
+                            "enum": ["Always","IfNotPresent","Never"] }
           },
           "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
+    },
+    "traefik": {
+      "type": "object",
+      "description": "Traefik ingress controller sub-chart configuration (opt-in). All keys pass through to the Traefik Helm chart.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable the Traefik ingress controller sub-chart."
+        }
+      },
+      "additionalProperties": true
     }
   }
 }

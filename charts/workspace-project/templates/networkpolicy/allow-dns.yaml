@@ -1,7 +1,6 @@
 {{- $p := .Values.project | default dict -}}
 {{- if (dig "network" "dnsEgress" true $p) }}
 ---
-# Allow egress to kube-dns
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

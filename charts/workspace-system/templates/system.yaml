@@ -1,8 +1,57 @@
 {{- define "workspace-system.hardcodedValues" -}}
 global:
-  labels: {}
+  labels:
+    ws.kloudkit.com/zone: global
+
+networkpolicies:
+  allow-global-ingress:
+    podSelector:
+      matchLabels:
+        ws.kloudkit.com/zone: global
+    policyTypes:
+      - Ingress
+    rules:
+      ingress:
+        - from:
+            - namespaceSelector: {}
+              podSelector:
+                matchExpressions:
+                  - key: ws.kloudkit.com/zone
+                    operator: In
+                    values:
+                      - isolated
+                      - project
+        - from:
+            - namespaceSelector: {}
+              podSelector:
+                matchLabels:
+                  ws.kloudkit.com/zone: global
+{{- end }}
+
+{{- define "workspace-system.featureStoreValues" -}}
+{{- $fs := .Values.featureStore | default dict -}}
+{{- if index $fs "enabled" -}}
+controllers:
+  store:
+    replicas: {{ dig "replicas" 1 $fs }}
+    containers:
+      main:
+        image:
+          repository: {{ dig "image" "repository" "ghcr.io/kloudkit/ws-feature-store" $fs }}
+          tag: {{ dig "image" "tag" "v2026.02" $fs | quote }}
+          pullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" $fs }}
+
+service:
+  store:
+    controller: store
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+{{- end }}
 {{- end }}
 
 {{- $ctx := deepCopy . -}}
 {{- $_ := include "workspace-system.hardcodedValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
+{{- $_ = include "workspace-system.featureStoreValues" . | fromYaml | mergeOverwrite $ctx.Values -}}
 {{- include "bjw-s.common.loader.all" $ctx }}

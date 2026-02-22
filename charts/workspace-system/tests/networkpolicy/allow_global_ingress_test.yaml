@@ -1,0 +1,74 @@
+---
+suite: NetworkPolicy / allow-global-ingress
+templates:
+  - templates/system.yaml
+release:
+  name: my-release
+  namespace: workspace-system
+tests:
+  - it: should always render
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should select zone=global pods
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels
+          value:
+            ws.kloudkit.com/zone: global
+
+  - it: should only declare Ingress policy type
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Ingress
+
+  - it: should allow ingress from workspace pods (zone in isolated or project) in any namespace
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].namespaceSelector
+          value: {}
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchExpressions[0].key
+          value: ws.kloudkit.com/zone
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchExpressions[0].operator
+          value: In
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchExpressions[0].values
+          value:
+            - isolated
+            - project
+
+  - it: should allow ingress from global pods in any namespace
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: spec.ingress[1].from[0].namespaceSelector
+          value: {}
+      - equal:
+          path: spec.ingress[1].from[0].podSelector.matchLabels
+          value:
+            ws.kloudkit.com/zone: global
+
+  - it: should be in the system namespace
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: workspace-system

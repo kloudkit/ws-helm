@@ -1,25 +1,25 @@
 ---
 suite: Feature Store
 templates:
-  - templates/feature-store.yaml
+  - templates/system.yaml
 release:
   name: my-release
 tests:
-  - it: should render no documents when disabled (default)
+  - it: should render only the NetworkPolicy when disabled (default)
     asserts:
       - hasDocuments:
-          count: 0
+          count: 1
 
-  - it: should render Deployment and Service when enabled
+  - it: should render NetworkPolicy, Deployment, and Service when enabled
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     asserts:
       - hasDocuments:
-          count: 2
+          count: 3
 
   - it: should render a Deployment when enabled
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Deployment
@@ -29,7 +29,7 @@ tests:
 
   - it: should use default image repository
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Deployment
@@ -40,7 +40,7 @@ tests:
 
   - it: should use default image tag v2026.02
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Deployment
@@ -51,7 +51,7 @@ tests:
 
   - it: should default replicas to 1
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Deployment
@@ -62,8 +62,8 @@ tests:
 
   - it: should override image repository
     set:
-      system.featureStore.enabled: true
-      system.featureStore.image.repository: my-registry/custom-store
+      featureStore.enabled: true
+      featureStore.image.repository: my-registry/custom-store
     documentSelector:
       path: kind
       value: Deployment
@@ -74,8 +74,8 @@ tests:
 
   - it: should override image tag
     set:
-      system.featureStore.enabled: true
-      system.featureStore.image.tag: v2099.01
+      featureStore.enabled: true
+      featureStore.image.tag: v2099.01
     documentSelector:
       path: kind
       value: Deployment
@@ -86,8 +86,8 @@ tests:
 
   - it: should override replicas
     set:
-      system.featureStore.enabled: true
-      system.featureStore.replicas: 3
+      featureStore.enabled: true
+      featureStore.replicas: 3
     documentSelector:
       path: kind
       value: Deployment
@@ -98,7 +98,7 @@ tests:
 
   - it: should render a ClusterIP Service
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Service
@@ -109,7 +109,7 @@ tests:
 
   - it: should expose port 80
     set:
-      system.featureStore.enabled: true
+      featureStore.enabled: true
     documentSelector:
       path: kind
       value: Service
