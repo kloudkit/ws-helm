@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "description": "Group bjw-s common chart across all charts",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["common"],
+      "groupName": "bjw-s common chart"
+    }
+  ]
+}
